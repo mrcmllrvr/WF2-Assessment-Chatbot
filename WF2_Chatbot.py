@@ -1,3 +1,10 @@
+# Import pysqlite3 and swap it with the default sqlite3 library
+import sys
+import pysqlite3
+
+# Swap the standard sqlite3 module with pysqlite3
+sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
+
 import chromadb
 import streamlit as st
 import openai
