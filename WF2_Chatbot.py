@@ -235,7 +235,7 @@ def display_quiz():
             st.session_state["show_proceed_button"] = True
         elif st.session_state["attempts"] >= 3:
             # After 3 attempts, reveal the correct answer and suggest reviewing the lesson
-            correct_answer_feedback = f"The correct answer is: {current_question['expected_answer']}. Please review Module 6F, Lesson 06."
+            correct_answer_feedback = f"The correct answer is: {current_question['right_answer']}. Please review Module 6F, Lesson 06."
             st.session_state["chat_history"].append({"role": "assistant", "content": correct_answer_feedback})
             with st.chat_message("assistant"):
                 simulate_typing(correct_answer_feedback)
