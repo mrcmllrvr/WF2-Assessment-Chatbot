@@ -1,8 +1,5 @@
-# Import pysqlite3 and swap it with the default sqlite3 library
+package__import__('pysqlite3')
 import sys
-import pysqlite3
-
-# Swap the standard sqlite3 module with pysqlite3
 sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 
 import chromadb
