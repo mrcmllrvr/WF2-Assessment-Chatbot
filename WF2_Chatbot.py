@@ -148,13 +148,12 @@ def generate_feedback(question_data, user_answer, attempt_number):
     Attempt Number: {attempt_number}
 
     Task:
-    1. Analyze the student's response carefully, referencing only the information in Module 6F, Lesson 06.
-    2. If the response is correct, acknowledge it positively and proceed.
-    3. If the response is partially correct, provide subtle hints to encourage deeper thinking.
-    4. If the response is incorrect, provide a gentle nudge or guiding question without directly revealing the answer.
-    5. After 3 unsuccessful attempts, reveal the correct answer and suggest reviewing specific concepts from Module 6F, Lesson 06.
+    1. If the student's response is fully correct and complete, confirm it explicitly by stating "This answer is fully correct".
+    2. If the response is partially correct, provide subtle hints to encourage deeper thinking, without stating it’s fully correct.
+    3. If the response is incorrect, provide a gentle nudge or guiding question without directly revealing the answer.
+    4. After 3 unsuccessful attempts, reveal the correct answer and suggest reviewing specific concepts from Module 6F, Lesson 06.
 
-    Your response should be educational, supportive, and strictly adhere to the lesson content. Avoid any unrelated information or outside knowledge.
+    Respond educationally and supportively, strictly adhering to the lesson content and avoiding unrelated information or outside knowledge.
     """
 
     response = openai.ChatCompletion.create(
@@ -180,9 +179,12 @@ def display_instructions():
     - **Correct Answers**: Correct answers will be acknowledged, and we will move on to the next question.
     """)
 
-    # Button to start the assessment
-    if st.button("Start Assessment"):
-        st.session_state["page"] = "assessment"  # Switch to the assessment page
+    # Button to start the assessment with on_click function
+    if st.button("Start Assessment", key="start_assessment", on_click=start_assessment):
+        pass  # `on_click` will handle the transition
+
+def start_assessment():
+    st.session_state["page"] = "assessment"
 
 # Function to simulate typing effect
 def simulate_typing(text, delay=0.01):
@@ -193,31 +195,63 @@ def simulate_typing(text, delay=0.01):
         container.markdown(displayed_text)
         time.sleep(delay)
 
+# Function to handle proceeding to the next question
+def proceed_to_next_question():
+    st.session_state["current_question_index"] += 1
+    st.session_state["attempts"] = 0
+    st.session_state["show_proceed_button"] = False  # Hide button after moving to the next question
+    st.session_state["chat_history"] = []  # Clear chat history for the next question
+
+def go_to_previous_question():
+    # Decrement the current question index to go back
+    st.session_state["current_question_index"] -= 1
+    st.session_state["attempts"] = 0
+    st.session_state["show_proceed_button"] = False
+
+# Function to handle restarting the quiz
+def restart_quiz():
+    st.session_state["page"] = "instructions"
+    st.session_state["current_question_index"] = 0
+    st.session_state["attempts"] = 0
+    st.session_state["chat_history"] = []
+    st.session_state["show_proceed_button"] = False
+
 # Main function to display the quiz
 def display_quiz():
     # Fetch current question data
     current_question = questions[st.session_state["current_question_index"]]
 
     # Display question
-    st.write(f"### {current_question['scenario']}")
+    st.write(f"## {current_question['scenario']}")
     st.write(current_question["question"])
 
-    # Display chat history if available
+    # Display chat history with trial count above each user response
     for entry in st.session_state["chat_history"]:
         role = entry["role"]
         content = entry["content"]
+        trial_count = entry.get("trial_count", None)  # Get trial count if it's a user entry
+        
+        # Display trial count above each user response
+        if role == "user" and trial_count:
+            st.write(f"**Trial: {trial_count} of 3**")
+        
+        # Display message
         st.chat_message(role).write(content)
-
-    # Display trial count above the input field
-    st.write(f"**Trial: {st.session_state['attempts'] + 1} of 3**")
 
     # Handle single submission using st.chat_input with static label
     if user_input := st.chat_input("Type your answer here"):
+        # Display trial count above the user's response for the first and subsequent trials
+        st.write(f"**Trial: {st.session_state['attempts'] + 1} of 3**")
+
         # Increment session state attempts immediately
         st.session_state["attempts"] += 1
 
-        # Append user input to chat history
-        st.session_state["chat_history"].append({"role": "user", "content": user_input})
+        # Append user input to chat history with trial count
+        st.session_state["chat_history"].append({
+            "role": "user", 
+            "content": user_input,
+            "trial_count": st.session_state["attempts"]  # Store the current trial count
+        })
         st.chat_message("user").write(user_input)  # Display the user's input
 
         # Display a spinner while processing the answer
@@ -244,19 +278,11 @@ def display_quiz():
             st.session_state["show_proceed_button"] = False
 
     # Display "Proceed to the next question" button if answer is correct or 3 attempts reached
-    if st.session_state.get("show_proceed_button", False) and st.button("Proceed to the next question"):
-        st.session_state["current_question_index"] += 1
-        st.session_state["attempts"] = 0
-        st.session_state["show_proceed_button"] = False  # Hide button after moving to the next question
-        st.session_state["chat_history"] = []  # Clear chat history for the next question
+    if st.session_state.get("show_proceed_button", False):
+        st.button("Proceed to the next question", key="proceed_next", on_click=proceed_to_next_question)
 
     # Always display the Restart Quiz button at the bottom
-    if st.button("Restart Quiz"):
-        st.session_state["page"] = "instructions"
-        st.session_state["current_question_index"] = 0
-        st.session_state["attempts"] = 0
-        st.session_state["chat_history"] = []
-        st.session_state["show_proceed_button"] = False
+    st.button("Restart Quiz", key="restart_quiz", on_click=restart_quiz)
 
 # Run the app with a page-based structure
 def main():
