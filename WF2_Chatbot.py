@@ -123,7 +123,7 @@ system_prompt = """
     7. In instances where the student provides an incomprehensible answer, avoid interpreting the answer—respond solely based on known concepts in Module 6F, Lesson 06.
     8. When the name "Muhammad" is mentioned, add "(saww)" immediately after it.
     9. Determine if the student's answer is fully correct by checking if it covers all key points.
-    10. If the answer covers all key points, state first "This answer is fully correct" AT ALL TIMES.
+    10. If the answer covers all key points, state first "This answer is fully correct" AT ALL TIMES. 
     11. If the answer is partially correct (some key points are covered), provide subtle hints to encourage deeper thinking, without stating it’s fully correct.
     12. If the answer is incorrect (no key points are covered), provide a gentle nudge or guiding question without directly revealing the answer.
     13. After 3 unsuccessful attempts, reveal the correct answer and suggest reviewing specific concepts from Module 6F, Lesson 06.
@@ -224,8 +224,8 @@ def match_key_points(user_answer, key_points, threshold=0.7):
 
 # Main function to display the assessment instructions
 def display_instructions():
-    st.title("Educational Assistant Chatbot 🤖")
-    st.write("*Hey! I will help you assess and guide on Module 6F, Lesson 06 about Moonsighting.*")
+    st.title("MCE Chatbot")
+    st.write("*Salaam alaykum! I will help you assess and guide on Module 6F, Lesson 06 about Moonsighting.*")
     st.subheader("Assessment Instructions:")
 
     st.markdown("""
@@ -381,11 +381,11 @@ def display_quiz():
     for entry in st.session_state["chat_histories"][current_index]:
         role = entry["role"]
         content = entry["content"]
-        trial_count = entry.get("trial_count", None)
+        attempt_count = entry.get("attempt_count", None)
         
-        # Display trial count above each user response
-        if role == "user" and trial_count:
-            st.write(f"**Trial: {trial_count} of 3**")
+        # Display attempt count above each user response
+        if role == "user" and attempt_count:
+            st.write(f"**Attempt: {attempt_count} of 3**")
         
         # Display message
         st.chat_message(role).write(content)
@@ -399,18 +399,18 @@ def display_quiz():
         if st.session_state["attempts"] < 3 and not st.session_state["question_completed"].get(current_index, False):
             # Display chat input if answer is not fully correct and attempts are below 3
             if user_input := st.chat_input("Type your answer here"):
-                # Display trial count above the user's response for the first and subsequent trials
-                st.write(f"**Trial: {st.session_state['attempts'] + 1} of 3**")
+                # Display attempt count above the user's response for the first and subsequent attempts
+                st.write(f"**Attempt: {st.session_state['attempts'] + 1} of 3**")
 
                 # Increment session state attempts immediately
                 st.session_state["attempts"] += 1
                 st.session_state["attempts_per_question"][current_index] = st.session_state["attempts"]
 
-                # Append user input to chat history for the current question with trial count
+                # Append user input to chat history for the current question with attempt count
                 st.session_state["chat_histories"][current_index].append({
                     "role": "user", 
                     "content": user_input,
-                    "trial_count": st.session_state["attempts"]
+                    "attempt_count": st.session_state["attempts"]
                 })
                 st.chat_message("user").write(user_input)  # Display the user's input
 
@@ -432,11 +432,6 @@ def display_quiz():
 
                 elif st.session_state["attempts"] >= 3:
                     # After 3 attempts, let GPT-4 suggest review materials
-                    feedback = generate_feedback(current_question, user_input, st.session_state["attempts"])
-                    st.session_state["chat_histories"][current_index].append({"role": "assistant", "content": feedback})
-                    
-                    with st.chat_message("assistant"):
-                        simulate_typing(feedback)
                     st.session_state["show_proceed_button"] = True
                     st.session_state["question_completed"][current_index] = True  # Mark question as completed
                 else:
