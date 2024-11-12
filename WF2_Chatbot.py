@@ -180,7 +180,7 @@ def generate_feedback(question_data, user_answer, attempt_number):
 
     Task:
     1. Determine if the student's answer is fully correct by checking if it covers all key points.
-    2. If the answer covers all key points, ALWAYS state "This answer is fully correct."
+    2. If the answer covers all key points, state "This answer is fully correct" AT ALL TIMES.
     3. If the answer is partially correct (some key points are covered), provide subtle hints to encourage deeper thinking, without stating it’s fully correct.
     4. If the answer is incorrect (no key points are covered), provide a gentle nudge or guiding question without directly revealing the answer.
     5. After 3 unsuccessful attempts, reveal the correct answer and suggest reviewing specific concepts from Module 6F, Lesson 06.
@@ -296,6 +296,48 @@ def restart_quiz():
     st.session_state["show_proceed_button"] = False
     st.session_state["question_completed"] = {}
 
+# Function to handle completing the quiz
+def display_results():
+    # Display the score
+    score = st.session_state["progress"]["correct_answers"]
+    st.title("Quiz Results")
+    st.write(f"You got {score} out of {len(questions)} questions correct.")
+
+    # Display all chat history across questions
+    st.subheader("Chat History")
+    for i, question in enumerate(questions):
+        st.write(f"### {question['scenario_number']}")
+        st.write(f"*{question['scenario']}*")
+        st.write(f"**{question['question']}**")
+        
+        # Display chat history for each question
+        for entry in st.session_state["chat_histories"].get(i, []):
+            role = entry["role"]
+            content = entry["content"]
+            if role == "user":
+                st.write(f"**You**: {content}")
+            else:
+                st.write(f"**Assistant**: {content}")
+        
+        st.markdown("---")  # Divider between questions
+
+    # Add an "Exit" button at the bottom
+    if st.button("Exit", on_click=exit_quiz):
+        st.write("Returning to the instruction page...")  # Optional message
+
+def complete_quiz():
+    st.session_state["page"] = "complete"
+
+
+def exit_quiz():
+    # Clear all session state variables to reset the quiz
+    for key in st.session_state.keys():
+        del st.session_state[key]
+    
+    # Redirect to the instructions page
+    st.session_state["page"] = "instructions"
+
+
 # Main function to display the quiz
 def display_quiz():
     display_sidebar_progress()  # Show progress in sidebar
@@ -401,7 +443,14 @@ def display_quiz():
 
     # Display "Proceed to the next question" button if answer is correct or 3 attempts reached
     if st.session_state.get("show_proceed_button", False) and current_index == st.session_state["most_recent_question_index"]:
-        st.button("Proceed to the next question", key="proceed_next", on_click=proceed_to_next_question)
+        # Check if we are on the last question
+        if current_index == len(questions) - 1:
+            # Only display "Complete Quiz" button if answer is fully correct or attempts reached 3
+            if st.session_state["question_completed"].get(current_index, False) or st.session_state["attempts"] >= 3:
+                st.button("Complete Quiz", on_click=complete_quiz)
+        else:
+            # Otherwise, show the "Proceed to the next question" button for intermediate questions
+            st.button("Proceed to the next question", key="proceed_next", on_click=proceed_to_next_question)
 
     # Display "Return to previous question" button if not on the first question
     if current_index > 0:
@@ -439,10 +488,10 @@ def main():
     # Decide which page to display
     if st.session_state["page"] == "instructions":
         display_instructions()
-    else:
+    elif st.session_state["page"] == "assessment":
         display_quiz()
-
-
+    elif st.session_state["page"] == "complete":
+        display_results()
 
 # Run the app
 if __name__ == "__main__":
