@@ -122,6 +122,12 @@ system_prompt = """
     6. Avoid explicitly mentioning the source of information; act as if Module 6F, Lesson 06 is the inherent source of truth.
     7. In instances where the student provides an incomprehensible answer, avoid interpreting the answer—respond solely based on known concepts in Module 6F, Lesson 06.
     8. When the name "Muhammad" is mentioned, add "(saww)" immediately after it.
+    9. Determine if the student's answer is fully correct by checking if it covers all key points.
+    10. If the answer covers all key points, state first "This answer is fully correct" AT ALL TIMES.
+    11. If the answer is partially correct (some key points are covered), provide subtle hints to encourage deeper thinking, without stating it’s fully correct.
+    12. If the answer is incorrect (no key points are covered), provide a gentle nudge or guiding question without directly revealing the answer.
+    13. After 3 unsuccessful attempts, reveal the correct answer and suggest reviewing specific concepts from Module 6F, Lesson 06.
+    14. Always respond in first person to maintain a supportive and educational tone.
 """
 
 
@@ -300,11 +306,13 @@ def restart_quiz():
 def display_results():
     # Display the score
     score = st.session_state["progress"]["correct_answers"]
-    st.title("Quiz Results")
+    st.title("Assessment Results")
     st.write(f"You got {score} out of {len(questions)} questions correct.")
+    st.write("")
+    st.write("")
 
     # Display all chat history across questions
-    st.subheader("Chat History")
+    st.subheader("Review your assessment:")
     for i, question in enumerate(questions):
         st.write(f"### {question['scenario_number']}")
         st.write(f"*{question['scenario']}*")
@@ -417,7 +425,7 @@ def display_quiz():
                     simulate_typing(feedback)  # Use typing simulation for assistant response
 
                 # Process attempts and correct answers
-                if "This answer is fully correct" in feedback:
+                if "fully correct" in feedback:
                     st.session_state["show_proceed_button"] = True
                     st.session_state["progress"]["correct_answers"] += 1
                     st.session_state["question_completed"][current_index] = True  # Mark question as completed
@@ -438,7 +446,7 @@ def display_quiz():
                 st.session_state["button_states"][current_index] = st.session_state["show_proceed_button"]
 
     # Display success message if the user got the answer right on the first try
-    if st.session_state["attempts"] == 1 and feedback and "This answer is fully correct" in feedback:
+    if st.session_state["attempts"] == 1 and feedback and "fully correct" in feedback:
         st.success("Great job! You got it right on the first try! 🌟")
 
     # Display "Proceed to the next question" button if answer is correct or 3 attempts reached
