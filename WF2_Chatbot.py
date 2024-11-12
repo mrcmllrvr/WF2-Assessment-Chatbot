@@ -221,14 +221,19 @@ def display_instructions():
     st.title("Educational Assistant Chatbot 🤖")
     st.write("*Hey! I will help you assess and guide on Module 6F, Lesson 06 about Moonsighting.*")
     st.subheader("Assessment Instructions:")
-    
-    st.write("""
-    - **Question Structure**: The assessment has *5 scenario-based questions*, asked in a specific order.
-    - **Attempts and Feedback**: You have *3 attempts* to answer each question correctly.
-    - **Strictness**: Only *fully correct answers* are accepted; partial answers will prompt for further clarification.
-    - **Final Explanation**: After *3 unsuccessful attempts*, I will provide the correct answer and suggest reviewing the lesson.
-    - **Correct Answers**: *Correct answers* will be acknowledged, and we will move on to the next question.
-    """)
+
+    st.markdown("""
+    1. **Question Structure**: The assessment has 5 scenario-based questions. Questions will be asked in a specific order.
+    """, unsafe_allow_html=True)
+    st.markdown("""
+    2. **Attempts and Feedback**: You have 3 attempts to answer each question correctly.
+        - *If your response is incorrect or only partially correct*, I will provide subtle guidance, nudges, or prompts to encourage you to think deeper without directly revealing the answer.
+        - *Strictness*: I will be strict in evaluating your responses, considering only complete answers as fully correct. If your answer is partial, I will ask for additional details or clarification before moving to the next question.
+        - *Final Explanation*: After 3 unsuccessful attempts, I will provide the correct answer along with directions to review specific lesson content in more detail.
+    """, unsafe_allow_html=True)
+    st.markdown("""
+    3. **Correct Answers**: When you provide a correct answer, I will acknowledge it, offer additional insights if needed, and then proceed to the next question.
+    """, unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True) 
 
