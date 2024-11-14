@@ -30,6 +30,68 @@ collection = client.get_or_create_collection(name=COLLECTION_NAME, embedding_fun
 # Set up Streamlit app
 st.set_page_config(page_title="Quiz Chatbot", page_icon=":books:")
 
+# Function to convert an image file to a base64 string
+def image_to_base64(image_path):
+    with open(image_path, "rb") as image_file:
+        return base64.b64encode(image_file.read()).decode("utf-8")
+
+# Paths to the avatar images (Replace with your actual paths)
+user_avatar_path = Path(r"C:\Users\binti\intelligent AI solutions\world federation 2 (quiz chatbot)\female-avatar.png")
+assistant_avatar_path = Path(r"C:\Users\binti\intelligent AI solutions\world federation 2 (quiz chatbot)\chatbot-avatar.png")
+
+# Convert images to base64
+user_avatar_base64 = image_to_base64(user_avatar_path)
+assistant_avatar_base64 = image_to_base64(assistant_avatar_path)
+
+# CSS for chat UI
+st.markdown("""
+    <style>
+    .chat-container {
+        height: 100px;
+        overflow-y: auto;
+        padding: 0px;
+        border-radius: 0px;
+        background-color: #f5f5f5;
+    }
+    .user-message {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        margin: 10px 0;
+    }
+    .assistant-message {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        margin: 10px 0;
+    }
+    .message-bubble {
+        padding: 20px;
+        border-radius: 15px;
+        margin: 0px;
+        max-width: 70%;
+    }
+    .user-bubble {
+        background-color: #DCF8C6;
+        color: black;
+    }
+    .assistant-bubble {
+        background-color: #ADE8F4;
+        color: black;
+    }
+    .avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        margin: 5px;
+    }
+    .stButton button {
+        width: 100%;
+        margin: 5px 0;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
 # Define questions and right answers
 questions = [
     {
@@ -42,7 +104,8 @@ questions = [
             "Time zones influence sighting reports in different areas"
         ],
         "example_response": "The new crescent moon may not be visible everywhere on the same evening. Due to local conditions and time zones, one city may see the moon while another city may not.",
-        "context": "The Islamic lunar calendar depends on the phases of the moon, and the new month starts with the sighting of the crescent moon. Since cities to the west may see the moon after eastern locations, the sighting can vary regionally."
+        "context": "The Islamic lunar calendar depends on the phases of the moon, and the new month starts with the sighting of the crescent moon. Since cities to the west may see the moon after eastern locations, the sighting can vary regionally.",
+        "specific_section": "The Phases of the Moon"
     },
     {
         "scenario_number": "Scenario 2",
@@ -54,7 +117,8 @@ questions = [
             "Explanation of benefits such as blessings, protection from misdeeds, and spiritual growth"
         ],
         "example_response": "I could give charity and recite a dua. Giving charity helps protect against harm, while the dua brings blessings for the new month.",
-        "context": "Recommended actions include charity, prayer, and reflection on personal growth as the new month is a time for renewing commitment and dedication to Allah."
+        "context": "Recommended actions include charity, prayer, and reflection on personal growth as the new month is a time for renewing commitment and dedication to Allah.",
+        "specific_section": "Recommended actions when sighting the new moon"
     },
     {
         "scenario_number": "Scenario 3",
@@ -66,7 +130,8 @@ questions = [
             "The lunar months begin with the sighting of the crescent moon"
         ],
         "example_response": "The lunar calendar lets Islamic events like Ramadan and Hajj rotate through all seasons. This way, Muslims can experience these occasions in different weather conditions and day lengths over time.",
-        "context": "The lunar calendar is about 11 days shorter than the solar calendar, causing Islamic events to shift through different seasons, allowing diverse experiences for Muslims."
+        "context": "The lunar calendar is about 11 days shorter than the solar calendar, causing Islamic events to shift through different seasons, allowing diverse experiences for Muslims.",
+         "specific_section": "Benefit of a lunar calendar"
     },
     {
         "scenario_number": "Scenario 4",
@@ -78,7 +143,8 @@ questions = [
             "Reflecting on the passage of time and personal growth as Muslims"
         ],
         "example_response": "I would make a dua, reflecting on the start of the new month as a chance to improve myself and draw closer to Allah. The dua of Imam Zayn al-Abidin (a) emphasizes gratitude and repentance.",
-        "context": "Seeing the crescent moon symbolizes the start of a new month. It’s a moment to reflect on time, and we can recite a dua, such as the one from Imam Zayn al-Abidin, to seek blessings and guidance."
+        "context": "Seeing the crescent moon symbolizes the start of a new month. It’s a moment to reflect on time, and we can recite a dua, such as the one from Imam Zayn al-Abidin, to seek blessings and guidance.",
+        "specific_section": "Faith in action"
     },
     {
         "scenario_number": "Scenario 5",
@@ -90,7 +156,8 @@ questions = [
             "Cities with similar horizons can follow each other's moon sightings"
         ],
         "example_response": "According to Ayatullah Sistani, cities with similar horizons can follow each other in moon sighting. If one city to the east sees the moon, a city to the west may also observe the new month.",
-        "context": "Ayatullah Sistani supports the unity of horizons, allowing cities with similar geographic horizons to follow each other's sightings, which considers Earth’s spherical nature and rotation."
+        "context": "Ayatullah Sistani supports the unity of horizons, allowing cities with similar geographic horizons to follow each other's sightings, which considers Earth’s spherical nature and rotation.",
+        "specific_section": "Differences of opinion"
     }
 ]
 
@@ -126,7 +193,7 @@ system_prompt = """
     10. If the answer covers all key points, state first "This answer is fully correct" AT ALL TIMES. 
     11. If the answer is partially correct (some key points are covered), provide subtle hints to encourage deeper thinking, without stating it’s fully correct.
     12. If the answer is incorrect (no key points are covered), provide a gentle nudge or guiding question without directly revealing the answer.
-    13. After 3 unsuccessful attempts, reveal the correct answer and suggest reviewing specific concepts from Module 6F, Lesson 06.
+    13. After 3 unsuccessful attempts, reveal the correct answer and suggest reviewing the SPECIFIC sub topic under {specific_section} that covers the question from Module 6F, Lesson 06 Moonsighting
     14. Always respond in first person to maintain a supportive and educational tone.
 """
 
@@ -137,7 +204,12 @@ def get_embedding(text):
     return np.array(response['data'][0]['embedding'])
 
 # Function to query ChromaDB for the most relevant context based on the question
-def retrieve_context(query):
+def retrieve_context(query, specific_section=None):
+    # Query ChromaDB with the question text and specific section/subtopic if provided
+    query_texts = [query]
+    if specific_section:
+        query_texts.append(specific_section)
+
     # Query ChromaDB with the question text
     results = collection.query(query_texts=[query], n_results=3)
     
@@ -170,7 +242,10 @@ def generate_feedback(question_data, user_answer, attempt_number):
     elif attempt_number == 2:
         hint_level = "Provide specific hints or reference missing key points indirectly."
     elif attempt_number == 3:
-        hint_level = "Provide a full answer and suggest reviewing specific content from Module 6F, Lesson 06."
+        # If it’s the third attempt, get specific section from ChromaDB
+        specific_section = question_data.get("specific_section", "General Guidance")
+        context_text = retrieve_context(question_data["question"], specific_section=specific_section)
+        hint_level = "Provide a full answer and suggest reviewing specific content or subtopic that contain the answer for the question from Module 6F, Lesson 06."
 
     # Construct prompt for GPT-4o to handle all feedback
     prompt = f"""
@@ -189,15 +264,19 @@ def generate_feedback(question_data, user_answer, attempt_number):
     2. If the answer covers all key points, state "This answer is fully correct" AT ALL TIMES.
     3. If the answer is partially correct (some key points are covered), provide subtle hints to encourage deeper thinking, without stating it’s fully correct.
     4. If the answer is incorrect (no key points are covered), provide a gentle nudge or guiding question without directly revealing the answer.
-    5. After 3 unsuccessful attempts, reveal the correct answer and suggest reviewing specific concepts from Module 6F, Lesson 06.
+    5. After 3 unsuccessful attempts, reveal the correct answer and suggest reviewing the SPECIFIC sub topic that covers the question from Module 6F, Lesson 06 Moonsighting
     6. Always respond in first person to maintain a supportive and educational tone.
 
+
+
     Respond educationally and supportively, strictly adhering to the lesson content and avoiding unrelated information or outside knowledge.
+    
+    {hint_level}
     """
 
     # Generate feedback using GPT-4o
     response = openai.ChatCompletion.create(
-        model="gpt-4",
+        model="gpt-4o",
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": prompt}
@@ -257,18 +336,74 @@ def start_assessment():
 # Function to display progress in the sidebar
 def display_sidebar_progress():
     progress = st.session_state.get("progress", {"correct_answers": 0, "attempts_per_question": {}})
-    st.sidebar.header("Your Progress")
-    st.sidebar.metric("Questions Answered Correctly", progress["correct_answers"])
-    st.sidebar.button("Restart Quiz", on_click=restart_quiz)
+    st.sidebar.header("⏳ Your Progress", divider='blue')
+    st.sidebar.metric("Questions Answered Correctly:", progress["correct_answers"])
+    
+    st.sidebar.write("")
+    st.sidebar.write("")
+
+    # Settings section for text size adjustment
+    st.sidebar.header("⚙️ Settings", divider='blue')
+    with st.sidebar.expander("Text Size", expanded=True):
+        text_size = st.selectbox("Select text size:", ["Small", "Medium", "Large", "Extra Large"], index=1)
+
+    # Apply selected text size
+    font_size_map = {
+        "Small": "14px",
+        "Medium": "16px",
+        "Large": "18px",
+        "Extra Large": "20px"
+    }
+    selected_font_size = font_size_map[text_size]
+
+    # Inject dynamic CSS to control text size based on user selection
+    st.markdown(
+        f"""
+        <style>
+        .appview-container, .element-container, .stText, .stMarkdown p {{
+            font-size: {selected_font_size} !important;
+        }}
+        .stButton button {{
+            font-size: {selected_font_size} !important;
+        }}
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
+    st.sidebar.write("")
+    st.sidebar.write("")
+    st.sidebar.write("")
+    st.sidebar.write("")
+    st.sidebar.write("")
+    st.sidebar.write("")
+    st.sidebar.write("")
+    st.sidebar.write("")
+    st.sidebar.write("")
+    st.sidebar.write("")
+    st.sidebar.write("")
+    st.sidebar.write("")
+
+    st.sidebar.button("Restart Quiz", icon="🔄", on_click=restart_quiz)
 
 # Function to simulate typing effect
-def simulate_typing(text, delay=0.01):
+def simulate_typing(text, delay=0.01, batch_size=5):  # Batch updates for smoother effect
     container = st.empty()
     displayed_text = ""
-    for char in text:
-        displayed_text += char
-        container.markdown(displayed_text)
+    for i in range(0, len(text), batch_size):
+        displayed_text += text[i:i+batch_size]
+        container.markdown(
+            f"""
+            <div class="assistant-message">
+                <img src="data:image/png;base64,{assistant_avatar_base64}" class="avatar" alt="Assistant Avatar">
+                <div class="message-bubble assistant-bubble">{displayed_text}</div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
         time.sleep(delay)
+
+
 
 # Function to handle proceeding to the next question
 def proceed_to_next_question():
@@ -313,6 +448,7 @@ def display_results():
 
     # Display all chat history across questions
     st.subheader("Review your assessment:")
+    st.divider()
     for i, question in enumerate(questions):
         st.write(f"### {question['scenario_number']}")
         st.write(f"*{question['scenario']}*")
@@ -326,8 +462,9 @@ def display_results():
                 st.write(f"**You**: {content}")
             else:
                 st.write(f"**Assistant**: {content}")
-        
-        st.markdown("---")  # Divider between questions
+
+        st.divider()
+    
 
     # Add an "Exit" button at the bottom
     if st.button("Exit", on_click=exit_quiz):
@@ -344,6 +481,41 @@ def exit_quiz():
     
     # Redirect to the instructions page
     st.session_state["page"] = "instructions"
+
+
+########### added display_chat_history #############
+
+def display_chat_history(chat_history):
+    for entry in chat_history:
+        role = entry["role"]
+        content = entry["content"]
+        attempt_count = entry.get("attempt_count", None)
+        
+        # Display attempt count if present
+        if role == "user" and attempt_count:
+            st.markdown(f"**Attempt: {attempt_count} of 3**")
+        
+        # Display message with enhanced UI
+        if role == "user":
+            st.markdown(
+                f"""
+                <div class="user-message">
+                    <div class="message-bubble user-bubble">{content}</div>
+                    <img src="data:image/png;base64,{user_avatar_base64}" class="avatar" alt="User Avatar">
+                </div>
+                """, 
+                unsafe_allow_html=True
+            )
+        else:
+            st.markdown(
+                f"""
+                <div class="assistant-message">
+                    <img src="data:image/png;base64,{assistant_avatar_base64}" class="avatar" alt="Assistant Avatar">
+                    <div class="message-bubble assistant-bubble">{content}</div>
+                </div>
+                """, 
+                unsafe_allow_html=True
+            )
 
 
 # Main function to display the quiz
@@ -375,20 +547,11 @@ def display_quiz():
     # Display question
     st.write(f"### {current_question['scenario_number']}")
     st.write(f"*{current_question['scenario']}*")
+    st.write("")
     st.write(f"**{current_question['question']}**")
 
-    # Display chat history for the current question
-    for entry in st.session_state["chat_histories"][current_index]:
-        role = entry["role"]
-        content = entry["content"]
-        attempt_count = entry.get("attempt_count", None)
-        
-        # Display attempt count above each user response
-        if role == "user" and attempt_count:
-            st.write(f"**Attempt: {attempt_count} of 3**")
-        
-        # Display message
-        st.chat_message(role).write(content)
+    # Display chat history using display_chat_history() (initial full history display)
+    display_chat_history(st.session_state["chat_histories"][current_index])
 
     # Check if attempts have reached the maximum or if answer is fully correct
     if st.session_state["attempts"] >= 3 or st.session_state["question_completed"].get(current_index, False):
@@ -399,9 +562,6 @@ def display_quiz():
         if st.session_state["attempts"] < 3 and not st.session_state["question_completed"].get(current_index, False):
             # Display chat input if answer is not fully correct and attempts are below 3
             if user_input := st.chat_input("Type your answer here"):
-                # Display attempt count above the user's response for the first and subsequent attempts
-                st.write(f"**Attempt: {st.session_state['attempts'] + 1} of 3**")
-
                 # Increment session state attempts immediately
                 st.session_state["attempts"] += 1
                 st.session_state["attempts_per_question"][current_index] = st.session_state["attempts"]
@@ -412,17 +572,24 @@ def display_quiz():
                     "content": user_input,
                     "attempt_count": st.session_state["attempts"]
                 })
-                st.chat_message("user").write(user_input)  # Display the user's input
+
+                # Display the new user input directly without re-rendering the full history
+                display_chat_history([{
+                    "role": "user",
+                    "content": user_input,
+                    "attempt_count": st.session_state["attempts"]
+                }])
 
                 # Display a spinner while processing the answer
                 with st.spinner('💭 Checking your answer...'):
                     time.sleep(0.5)  # Simulate delay for demonstration
                     feedback = generate_feedback(current_question, user_input, st.session_state["attempts"])
 
-                # Append feedback to chat history for the current question
+                # Append only the new feedback to chat history for the current question
                 st.session_state["chat_histories"][current_index].append({"role": "assistant", "content": feedback})
-                with st.chat_message("assistant"):
-                    simulate_typing(feedback)  # Use typing simulation for assistant response
+
+                # Use simulate_typing for the assistant's response
+                simulate_typing(feedback)
 
                 # Process attempts and correct answers
                 if "fully correct" in feedback:
@@ -431,7 +598,7 @@ def display_quiz():
                     st.session_state["question_completed"][current_index] = True  # Mark question as completed
 
                 elif st.session_state["attempts"] >= 3:
-                    # After 3 attempts, let GPT-4 suggest review materials
+                    # After 3 attempts, suggest review materials
                     st.session_state["show_proceed_button"] = True
                     st.session_state["question_completed"][current_index] = True  # Mark question as completed
                 else:
@@ -462,7 +629,6 @@ def display_quiz():
     # Display "Resume Current Question" button only if the user is on a previous question
     if current_index < st.session_state["most_recent_question_index"]:
         st.button("Resume Current Question", key="resume_current", on_click=resume_current_question)
-
 
 
 # Run the app with a page-based structure
