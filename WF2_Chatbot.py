@@ -11,6 +11,8 @@ from threading import Lock
 import json
 import os
 import time
+import base64
+from pathlib import Path
 from sklearn.metrics.pairwise import cosine_similarity
 
 # Load environment variables and set OpenAI key
