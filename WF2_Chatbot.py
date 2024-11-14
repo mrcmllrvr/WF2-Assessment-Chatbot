@@ -36,8 +36,8 @@ def image_to_base64(image_path):
         return base64.b64encode(image_file.read()).decode("utf-8")
 
 # Paths to the avatar images (Replace with your actual paths)
-user_avatar_path = Path("female-avatar.png")
-assistant_avatar_path = Path("chatbot-avatar.png")
+user_avatar_path = "female-avatar.png"
+assistant_avatar_path = "chatbot-avatar.png"
 
 # Convert images to base64
 user_avatar_base64 = image_to_base64(user_avatar_path)
