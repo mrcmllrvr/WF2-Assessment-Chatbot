@@ -35,7 +35,7 @@ collection = client.get_or_create_collection(name=COLLECTION_NAME, embedding_fun
 
 
 # Set up Streamlit app
-st.set_page_config(page_title="Quiz Chatbot", page_icon=":books:")
+st.set_page_config(page_title="Quiz Chatbot", page_icon=":books:", layout="wide")
 
 # Function to convert an image file to a base64 string
 def image_to_base64(image_path):
@@ -44,7 +44,11 @@ def image_to_base64(image_path):
 
 # Paths to the avatar images (Replace with your actual paths)
 user_avatar_path = "female-avatar.png"
-assistant_avatar_path = "chatbot-avatar.png"
+assistant_avatar_path = "avatar_open.png"
+
+# Load avatar images (assuming you have two images for simplicity)
+avatar_open_path = "avatar_open.png"
+avatar_closed_path = "avatar_closed.png"
 
 # Convert images to base64
 user_avatar_base64 = image_to_base64(user_avatar_path)
@@ -86,10 +90,16 @@ st.markdown("""
         background-color: #ADE8F4;
         color: black;
     }
-    .avatar {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
+    .user-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 20%;
+        margin: 5px;
+    }
+    .assistant-avatar {
+        width: 250px;
+        height: 250px;
+        border-radius: 10%;
         margin: 5px;
     }
     .stButton button {
@@ -381,6 +391,16 @@ def display_sidebar_progress():
     # TTS settings
     with st.sidebar.expander("🔊 Text-to-Speech", expanded=True):
         enable_tts = st.sidebar.toggle("Enable Text-to-Speech", value=False, key="enable_tts")
+
+        if enable_tts:
+            # Voice selection
+            voice_options = ["alloy", "echo", "fable", "onyx", "nova", "shimmer"]
+            selected_voice = st.sidebar.selectbox(
+                "Select Voice",
+                voice_options,
+                index=0,
+                key="tts_voice"
+            )
             
 
     # Apply selected text size
@@ -423,21 +443,61 @@ def display_sidebar_progress():
     st.sidebar.button("Restart Quiz", icon="🔄", on_click=restart_quiz)
 
 # Function to simulate typing effect
-def simulate_typing(text, delay=0.01, batch_size=5):  # Batch updates for smoother effect
+def simulate_typing_with_moving_lips(text, delay=0.01, batch_size=10, lip_sync_interval=2):
+    """
+    Simulates typing text with moving lips by alternating between two avatar images.
+    
+    Parameters:
+        text (str): The text to display as typing.
+        delay (float): Time delay between updates for typing effect.
+        batch_size (int): Number of characters to display at each update.
+        lip_sync_interval (int): How often to toggle mouth position, in terms of display updates.
+    """
     container = st.empty()
     displayed_text = ""
+    open_mouth = True  # Toggle mouth position
+
+    # Initialize a counter to control lip sync frequency
+    lip_sync_counter = 0
+
+    # Loop through the text in chunks defined by batch_size
     for i in range(0, len(text), batch_size):
+        # Append the next chunk of text to displayed_text
         displayed_text += text[i:i+batch_size]
+
+        # Toggle avatar image based on the lip_sync_counter
+        if lip_sync_counter % lip_sync_interval == 0:
+            open_mouth = not open_mouth
+
+        avatar_img = avatar_open_path if open_mouth else avatar_closed_path
+
+        # Display the avatar with the current state of text
         container.markdown(
             f"""
             <div class="assistant-message">
-                <img src="data:image/png;base64,{assistant_avatar_base64}" class="avatar" alt="Assistant Avatar">
+                <img src="data:image/png;base64,{image_to_base64(avatar_img)}" class="assistant-avatar" alt="Assistant Avatar">
                 <div class="message-bubble assistant-bubble">{displayed_text}</div>
             </div>
             """,
             unsafe_allow_html=True
         )
+
+        # Increment the lip sync counter
+        lip_sync_counter += 1
+
+        # Adjust speed for text typing and animation
         time.sleep(delay)
+
+    # Ensure mouth is closed after speaking
+    container.markdown(
+        f"""
+        <div class="assistant-message">
+            <img src="data:image/png;base64,{image_to_base64(avatar_closed_path)}" class="assistant-avatar" alt="Assistant Avatar">
+            <div class="message-bubble assistant-bubble">{displayed_text}</div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
     # Generate and play speech if TTS is enabled
     if st.session_state.get("enable_tts", False):
@@ -549,7 +609,7 @@ def display_chat_history(chat_history):
                 f"""
                 <div class="user-message">
                     <div class="message-bubble user-bubble">{content}</div>
-                    <img src="data:image/png;base64,{user_avatar_base64}" class="avatar" alt="User Avatar">
+                    <img src="data:image/png;base64,{user_avatar_base64}" class="user-avatar" alt="User Avatar">
                 </div>
                 """, 
                 unsafe_allow_html=True
@@ -558,7 +618,7 @@ def display_chat_history(chat_history):
             st.markdown(
                 f"""
                 <div class="assistant-message">
-                    <img src="data:image/png;base64,{assistant_avatar_base64}" class="avatar" alt="Assistant Avatar">
+                    <img src="data:image/png;base64,{assistant_avatar_base64}" class="assistant-avatar" alt="Assistant Avatar">
                     <div class="message-bubble assistant-bubble">{content}</div>
                 </div>
                 """, 
@@ -651,8 +711,8 @@ def display_quiz():
                 # Append only the new feedback to chat history for the current question
                 st.session_state["chat_histories"][current_index].append({"role": "assistant", "content": feedback})
 
-                # Use simulate_typing for the assistant's response
-                simulate_typing(feedback)
+                # Use simulate_typing_with_moving_lips for the assistant's response
+                simulate_typing_with_moving_lips(feedback)
 
                 # Process attempts and correct answers
                 if "fully correct" in feedback:
