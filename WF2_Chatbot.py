@@ -19,15 +19,18 @@ from sklearn.metrics.pairwise import cosine_similarity
 openai.api_key = st.secrets["openai"]["OPENAI_API_KEY"]
 
 # Initialize ChromaDB
-CHROMA_DATA_PATH = 'chromadb_WF2_chatbot/'
+CHROMA_DATA_PATH = "chromadb_WF2_chatbot/"
 COLLECTION_NAME = "document_embeddings"
+
+# Initialize ChromaDB client and embedding function
 client = chromadb.PersistentClient(path=CHROMA_DATA_PATH)
+
 openai_ef = chromadb.utils.embedding_functions.OpenAIEmbeddingFunction(
-    api_key=openai.api_key, 
-    model_name="text-embedding-ada-002",
-    dimensions=1536
+    api_key=openai.api_key,
+    model_name="text-embedding-ada-002"
 )
 collection = client.get_or_create_collection(name=COLLECTION_NAME, embedding_function=openai_ef)
+
 
 # Set up Streamlit app
 st.set_page_config(page_title="Quiz Chatbot", page_icon=":books:")
@@ -201,9 +204,10 @@ system_prompt = """
 
 
 # Function to get embeddings for a given text
-def get_embedding(text):
-    response = openai.Embedding.create(model="text-embedding-ada-002", input=text)
-    return np.array(response['data'][0]['embedding'])
+def get_embedding(text, model="text-embedding-ada-002"):
+    text = text.replace("\n", " ")  # Preprocess text
+    response = client.embeddings.create(input=[text], model=model)  # Call OpenAI API
+    return np.array(response.data[0].embedding)
 
 # Function to query ChromaDB for the most relevant context based on the question
 def retrieve_context(query, specific_section=None):
@@ -232,8 +236,6 @@ def retrieve_context(query, specific_section=None):
 
     return context_text
 
-# Function to generate feedback based on the student's answer and relevant context
-from sklearn.metrics.pairwise import cosine_similarity
 
 def generate_feedback(question_data, user_answer, attempt_number):
     context_text = retrieve_context(question_data["question"])
@@ -277,7 +279,7 @@ def generate_feedback(question_data, user_answer, attempt_number):
     """
 
     # Generate feedback using GPT-4o
-    response = openai.ChatCompletion.create(
+    response = openai.chat.completions.create(
         model="gpt-4o",
         messages=[
             {"role": "system", "content": system_prompt},
@@ -285,7 +287,7 @@ def generate_feedback(question_data, user_answer, attempt_number):
         ]
     )
 
-    feedback = response.choices[0].message["content"]
+    feedback = response.choices[0].message.content
 
     return feedback
 
@@ -335,6 +337,29 @@ def display_instructions():
 def start_assessment():
     st.session_state["page"] = "assessment"
 
+
+# Function to generate speech from text
+def generate_speech(text, voice="alloy"):
+    try:
+        # Create a temporary file for the audio output
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_file:
+            tmp_file_path = tmp_file.name
+
+        # Stream the audio directly to the temporary file
+        response = openai.audio.speech.create(
+            model="tts-1",
+            voice=voice,
+            input=text,
+        )
+        response.stream_to_file(tmp_file_path)
+
+        # Return the temporary file path for playback
+        return tmp_file_path
+    except Exception as e:
+        st.error(f"Error generating speech: {str(e)}")
+        return None
+    
+
 # Function to display progress in the sidebar
 def display_sidebar_progress():
     progress = st.session_state.get("progress", {"correct_answers": 0, "attempts_per_question": {}})
@@ -344,10 +369,17 @@ def display_sidebar_progress():
     st.sidebar.write("")
     st.sidebar.write("")
 
-    # Settings section for text size adjustment
+    # Settings
     st.sidebar.header("⚙️ Settings", divider='blue')
-    with st.sidebar.expander("Text Size", expanded=True):
+
+    # Text Size
+    with st.sidebar.expander("🗚 Text Size", expanded=True):
         text_size = st.selectbox("Select text size:", ["Small", "Medium", "Large", "Extra Large"], index=1)
+
+    # TTS settings
+    with st.sidebar.expander("🔊 Text-to-Speech", expanded=True):
+        enable_tts = st.sidebar.toggle("Enable Text-to-Speech", value=False, key="enable_tts")
+            
 
     # Apply selected text size
     font_size_map = {
@@ -404,6 +436,19 @@ def simulate_typing(text, delay=0.01, batch_size=5):  # Batch updates for smooth
             unsafe_allow_html=True
         )
         time.sleep(delay)
+
+    # Generate and play speech if TTS is enabled
+    if st.session_state.get("enable_tts", False):
+        speech_file = generate_speech(
+            text,
+            voice=st.session_state.get("tts_voice", "alloy")
+        )
+        if speech_file:
+            with open(speech_file, "rb") as f:
+                audio_bytes = f.read()
+            st.audio(audio_bytes, format="audio/mp3")
+            # Clean up the temporary file
+            os.unlink(speech_file)
 
 
 
@@ -485,7 +530,6 @@ def exit_quiz():
     st.session_state["page"] = "instructions"
 
 
-########### added display_chat_history #############
 
 def display_chat_history(chat_history):
     for entry in chat_history:
@@ -518,6 +562,21 @@ def display_chat_history(chat_history):
                 """, 
                 unsafe_allow_html=True
             )
+
+            # Generate and play speech for assistant messages if TTS is enabled
+            if st.session_state.get("enable_tts", False) and not entry.get("tts_played", False):
+                speech_file = generate_speech(
+                    content,
+                    voice=st.session_state.get("tts_voice", "alloy")
+                )
+                if speech_file:
+                    with open(speech_file, "rb") as f:
+                        audio_bytes = f.read()
+                    st.audio(audio_bytes, format="audio/mp3")
+                    # Clean up the temporary file
+                    os.unlink(speech_file)
+                    # Mark this message as played
+                    entry["tts_played"] = True
 
 
 # Main function to display the quiz
