@@ -14,6 +14,8 @@ import time
 import base64
 from pathlib import Path
 from sklearn.metrics.pairwise import cosine_similarity
+import tempfile
+import io
 
 # Load environment variables and set OpenAI key
 openai.api_key = st.secrets["openai"]["OPENAI_API_KEY"]
