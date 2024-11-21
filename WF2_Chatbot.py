@@ -604,12 +604,12 @@ def display_chat_history(chat_history):
             st.markdown(f"**Attempt: {attempt_count} of 3**")
         
         # Display message with enhanced UI
+        # <img src="data:image/png;base64,{user_avatar_base64}" class="user-avatar" alt="User Avatar"> # user avatar
         if role == "user":
             st.markdown(
                 f"""
                 <div class="user-message">
                     <div class="message-bubble user-bubble">{content}</div>
-                    <img src="data:image/png;base64,{user_avatar_base64}" class="user-avatar" alt="User Avatar">
                 </div>
                 """, 
                 unsafe_allow_html=True
