@@ -8,14 +8,15 @@ import streamlit as st
 import openai
 import numpy as np
 from threading import Lock
-import json
 import os
 import time
 import base64
 from pathlib import Path
 from sklearn.metrics.pairwise import cosine_similarity
 import tempfile
-import io
+from mutagen.mp3 import MP3
+from pydub.utils import mediainfo
+import threading
 
 # Load environment variables and set OpenAI key
 openai.api_key = st.secrets["openai"]["OPENAI_API_KEY"]
@@ -58,7 +59,7 @@ assistant_avatar_base64 = image_to_base64(assistant_avatar_path)
 st.markdown("""
     <style>
     .chat-container {
-        height: 100px;
+        height: 0px;
         overflow-y: auto;
         padding: 0px;
         border-radius: 0px;
@@ -77,7 +78,7 @@ st.markdown("""
         margin: 10px 0;
     }
     .message-bubble {
-        padding: 20px;
+        padding: 15px;
         border-radius: 15px;
         margin: 0px;
         max-width: 70%;
@@ -344,34 +345,36 @@ def display_instructions():
     with col2:
         # Centering the button in the middle column
         if st.button("Start Assessment", key="start_assessment", on_click=start_assessment):
-            pass  # `on_click` will handle the transition
+            pass  # on_click will handle the transition
 
 def start_assessment():
     st.session_state["page"] = "assessment"
 
 
 # Function to generate speech from text
-def generate_speech(text, voice="alloy"):
+def generate_speech(text, voice="nova"):
+    if not text or len(text.strip()) == 0:
+        st.error("Cannot generate audio for an empty text.")
+        return None
+
     try:
-        # Create a temporary file for the audio output
         with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_file:
             tmp_file_path = tmp_file.name
-
-        # Stream the audio directly to the temporary file
-        response = openai.audio.speech.create(
-            model="tts-1",
-            voice=voice,
-            input=text,
-        )
-        response.stream_to_file(tmp_file_path)
-
-        # Return the temporary file path for playback
-        return tmp_file_path
+            response = openai.audio.speech.create(
+                model="tts-1",
+                voice=voice,
+                input=text,
+            )
+            response.stream_to_file(tmp_file_path)
+            return tmp_file_path
+    except openai.error.OpenAIError as e:
+        st.error(f"OpenAI API error: {str(e)}")
+        return None
     except Exception as e:
         st.error(f"Error generating speech: {str(e)}")
         return None
-    
 
+    
 # Function to display progress in the sidebar
 def display_sidebar_progress():
     progress = st.session_state.get("progress", {"correct_answers": 0, "attempts_per_question": {}})
@@ -387,20 +390,11 @@ def display_sidebar_progress():
     # Text Size
     with st.sidebar.expander("🗚 Text Size", expanded=True):
         text_size = st.selectbox("Select text size:", ["Small", "Medium", "Large", "Extra Large"], index=1)
+        st.session_state["text_size"] = text_size  # Store selected text size in session state
 
     # TTS settings
     with st.sidebar.expander("🔊 Text-to-Speech", expanded=True):
         enable_tts = st.sidebar.toggle("Enable Text-to-Speech", value=False, key="enable_tts")
-
-        if enable_tts:
-            # Voice selection
-            voice_options = ["alloy", "echo", "fable", "onyx", "nova", "shimmer"]
-            selected_voice = st.sidebar.selectbox(
-                "Select Voice",
-                voice_options,
-                index=0,
-                key="tts_voice"
-            )
             
 
     # Apply selected text size
@@ -443,7 +437,7 @@ def display_sidebar_progress():
     st.sidebar.button("Restart Quiz", icon="🔄", on_click=restart_quiz)
 
 # Function to simulate typing effect
-def simulate_typing_with_moving_lips(text, delay=0.01, batch_size=10, lip_sync_interval=2):
+def simulate_typing_with_moving_lips(text, delay=0.01, batch_size=20, lip_sync_interval=4, container=None):
     """
     Simulates typing text with moving lips by alternating between two avatar images.
     
@@ -452,26 +446,23 @@ def simulate_typing_with_moving_lips(text, delay=0.01, batch_size=10, lip_sync_i
         delay (float): Time delay between updates for typing effect.
         batch_size (int): Number of characters to display at each update.
         lip_sync_interval (int): How often to toggle mouth position, in terms of display updates.
+        container (streamlit.empty): Optional container to display the animation in.
     """
-    container = st.empty()
+    if container is None:
+        container = st.empty()
+        
     displayed_text = ""
-    open_mouth = True  # Toggle mouth position
-
-    # Initialize a counter to control lip sync frequency
+    open_mouth = True
     lip_sync_counter = 0
 
-    # Loop through the text in chunks defined by batch_size
     for i in range(0, len(text), batch_size):
-        # Append the next chunk of text to displayed_text
         displayed_text += text[i:i+batch_size]
 
-        # Toggle avatar image based on the lip_sync_counter
         if lip_sync_counter % lip_sync_interval == 0:
             open_mouth = not open_mouth
 
         avatar_img = avatar_open_path if open_mouth else avatar_closed_path
 
-        # Display the avatar with the current state of text
         container.markdown(
             f"""
             <div class="assistant-message">
@@ -482,10 +473,7 @@ def simulate_typing_with_moving_lips(text, delay=0.01, batch_size=10, lip_sync_i
             unsafe_allow_html=True
         )
 
-        # Increment the lip sync counter
         lip_sync_counter += 1
-
-        # Adjust speed for text typing and animation
         time.sleep(delay)
 
     # Ensure mouth is closed after speaking
@@ -499,18 +487,90 @@ def simulate_typing_with_moving_lips(text, delay=0.01, batch_size=10, lip_sync_i
         unsafe_allow_html=True
     )
 
-    # Generate and play speech if TTS is enabled
-    if st.session_state.get("enable_tts", False):
-        speech_file = generate_speech(
-            text,
-            voice=st.session_state.get("tts_voice", "alloy")
-        )
-        if speech_file:
-            with open(speech_file, "rb") as f:
-                audio_bytes = f.read()
-            st.audio(audio_bytes, format="audio/mp3")
-            # Clean up the temporary file
-            os.unlink(speech_file)
+
+
+
+
+
+def display_avatar_with_audio_and_typing(audio_path, text, duration):
+    # Ensure paths to avatars are properly encoded
+    open_avatar_base64 = image_to_base64(avatar_open_path)
+    closed_avatar_base64 = image_to_base64(avatar_closed_path)
+
+     # Get the selected font size from session state
+    font_size_map = {
+        "Small": "14px",
+        "Medium": "16px",
+        "Large": "18px",
+        "Extra Large": "20px"
+    }
+    selected_font_size = font_size_map[st.session_state.get("text_size", "Medium")]  # Default to "Medium" if not set
+
+    # Check if the voice-over was successfully generated
+    if audio_path:
+        # Convert audio to Base64
+        with open(audio_path, "rb") as audio_file:
+            audio_base64 = base64.b64encode(audio_file.read()).decode()
+
+    # HTML and JavaScript for syncing
+    html_code = f"""
+    <div id="chat-container" style="display: flex; flex-direction: column; align-items: flex-start; font-family: 'serif', sans-serif; line-height: 1.5; color: #333333; font-size: {selected_font_size};">
+        <div style="display: flex; align-items: center; width: 100%; margin-bottom: 20px;">
+            <img id="avatar-img" src="data:image/png;base64,{closed_avatar_base64}" style="width: 250px; height: 250px; margin: 5px; border-radius: 10%;">
+            <div id="text-box" style="background-color: #ADE8F4; color: black; padding: 15px; border-radius: 15px; max-width: 70%; display: flex; justify-content: flex-start; align-items: center; margin: 10px 0; font-size: {selected_font_size};">
+                {text}
+            </div>
+        </div>
+        <audio id="audio-player" controls style="width: 100%; max-width: 600px; margin-bottom: 10px;">
+            <source src="data:audio/mp3;base64,{audio_base64}" type="audio/mp3">
+            Your browser does not support the audio element.
+        </audio>
+        <button id="play-animation" style="padding: 10px 20px; background-color: #f63366; color: white; border: none; border-radius: 15px; cursor: pointer; font-size: {selected_font_size};">
+            Play voice-over
+        </button>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {{
+            const playButton = document.getElementById("play-animation");
+            const avatarImg = document.getElementById("avatar-img");
+            const audio = document.getElementById("audio-player");
+            let openMouth = true;
+
+            playButton.addEventListener("click", () => {{
+                audio.currentTime = 0;
+                audio.play();
+
+                // Lips animation during audio playback
+                const lipsSyncInterval = setInterval(() => {{
+                    if (audio.paused || audio.ended) {{
+                        clearInterval(lipsSyncInterval);
+                        avatarImg.src = "data:image/png;base64,{closed_avatar_base64}";
+                    }} else {{
+                        avatarImg.src = openMouth
+                            ? "data:image/png;base64,{open_avatar_base64}"
+                            : "data:image/png;base64,{closed_avatar_base64}";
+                        openMouth = !openMouth;
+                    }}
+                }}, 200);  // Toggle every 200ms
+            }});
+        }});
+    </script>
+    """
+    # Inject the HTML into Streamlit
+    st.components.v1.html(html_code, height=500)
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -592,7 +652,7 @@ def exit_quiz():
     st.session_state["page"] = "instructions"
 
 
-
+# <img src="data:image/png;base64,{user_avatar_base64}" class="user-avatar" alt="User Avatar"> # user avatar
 def display_chat_history(chat_history):
     for entry in chat_history:
         role = entry["role"]
@@ -604,12 +664,12 @@ def display_chat_history(chat_history):
             st.markdown(f"**Attempt: {attempt_count} of 3**")
         
         # Display message with enhanced UI
-        # <img src="data:image/png;base64,{user_avatar_base64}" class="user-avatar" alt="User Avatar"> # user avatar
         if role == "user":
             st.markdown(
                 f"""
                 <div class="user-message">
                     <div class="message-bubble user-bubble">{content}</div>
+                    
                 </div>
                 """, 
                 unsafe_allow_html=True
@@ -625,47 +685,38 @@ def display_chat_history(chat_history):
                 unsafe_allow_html=True
             )
 
-            # Generate and play speech for assistant messages if TTS is enabled
-            if st.session_state.get("enable_tts", False) and not entry.get("tts_played", False):
-                speech_file = generate_speech(
-                    content,
-                    voice=st.session_state.get("tts_voice", "alloy")
-                )
-                if speech_file:
-                    with open(speech_file, "rb") as f:
-                        audio_bytes = f.read()
-                    st.audio(audio_bytes, format="audio/mp3")
-                    # Clean up the temporary file
-                    os.unlink(speech_file)
-                    # Mark this message as played
-                    entry["tts_played"] = True
-
 
 # Main function to display the quiz
 def display_quiz():
     display_sidebar_progress()  # Show progress in sidebar
 
-    feedback = None
-
     # Get the current question index and data
     current_index = st.session_state["current_question_index"]
     current_question = questions[current_index]
 
-    # Initialize chat histories and button state for the current question if not present
+    # Ensure session state variables exist
     if current_index not in st.session_state["chat_histories"]:
         st.session_state["chat_histories"][current_index] = []
     if current_index not in st.session_state["button_states"]:
         st.session_state["button_states"][current_index] = False
     if current_index not in st.session_state["attempts_per_question"]:
         st.session_state["attempts_per_question"][current_index] = 0
+    if "feedback" not in st.session_state:
+        st.session_state["feedback"] = None
+    if "speech_file" not in st.session_state:
+        st.session_state["speech_file"] = None
+    if "feedback_rendered" not in st.session_state:
+        st.session_state["feedback_rendered"] = {}  # Track rendering for all questions
+    if current_index not in st.session_state["feedback_rendered"]:
+        st.session_state["feedback_rendered"][current_index] = False
 
     # Restore the button state and attempts for the current question
     st.session_state["show_proceed_button"] = st.session_state["button_states"][current_index]
     st.session_state["attempts"] = st.session_state["attempts_per_question"][current_index]
 
-    # Update the most recent question index if we're on the latest question
-    if current_index >= st.session_state["most_recent_question_index"]:
-        st.session_state["most_recent_question_index"] = current_index
+    # # Update the most recent question index if we're on the latest question
+    # if current_index >= st.session_state["most_recent_question_index"]:
+    #     st.session_state["most_recent_question_index"] = current_index
 
     # Display question
     st.write(f"### {current_question['scenario_number']}")
@@ -703,23 +754,61 @@ def display_quiz():
                     "attempt_count": st.session_state["attempts"]
                 }])
 
+                # # Create a placeholder for the assistant's response
+                # assistant_response_placeholder = st.empty()
+
                 # Display a spinner while processing the answer
                 with st.spinner('💭 Checking your answer...'):
                     time.sleep(0.5)  # Simulate delay for demonstration
                     feedback = generate_feedback(current_question, user_input, st.session_state["attempts"])
 
-                # Append only the new feedback to chat history for the current question
+                # Append feedback to chat history
                 st.session_state["chat_histories"][current_index].append({"role": "assistant", "content": feedback})
 
-                # Use simulate_typing_with_moving_lips for the assistant's response
-                simulate_typing_with_moving_lips(feedback)
+                # # Initial rendering: Show the typing animation (avatar + text response)
+                # with assistant_response_placeholder.container():
+                #     simulate_typing_with_moving_lips(feedback)
+
+                # Save feedback in session state
+                st.session_state["feedback"] = feedback
+                st.session_state["speech_file"] = None  # Reset speech file for new attempt
+                st.session_state["feedback_rendered"][current_index] = False  # Reset rendering flag
+
+                # Check if TTS is enabled
+                if st.session_state.get("enable_tts", False):  
+                    with st.spinner('🔊 Generating voice-over...'):
+                        # Generate speech for the feedback
+                        speech_file = generate_speech(feedback, voice=st.session_state.get("tts_voice", "nova"))
+
+                    if speech_file and os.path.exists(speech_file):
+                        st.session_state["speech_file"] = speech_file
+                    else:
+                        st.error("Audio file is missing or not accessible.")
+
+                    # if speech_file and os.path.exists(speech_file):
+                    #     try:
+                    #         # Get audio duration using mutagen
+                    #         try:
+                    #             audio = MP3(speech_file)
+                    #             audio_duration = audio.info.length
+                    #         except Exception:
+                    #             info = mediainfo(speech_file)
+                    #             audio_duration = float(info['duration'])
+
+                    #         # Append audio and avatar below the response bubble
+                    #         with assistant_response_placeholder.container():
+                    #             display_avatar_with_audio_and_typing(speech_file, feedback, audio_duration)
+
+                    #     except Exception as e:
+                    #         st.error(f"Audio error: {e}")
+                    # else:
+                    #     st.error("Audio file is missing or not accessible.")
 
                 # Process attempts and correct answers
                 if "fully correct" in feedback:
                     st.session_state["show_proceed_button"] = True
                     st.session_state["progress"]["correct_answers"] += 1
                     st.session_state["question_completed"][current_index] = True  # Mark question as completed
-
                 elif st.session_state["attempts"] >= 3:
                     # After 3 attempts, suggest review materials
                     st.session_state["show_proceed_button"] = True
@@ -730,9 +819,19 @@ def display_quiz():
                 # Save the button state for the current question
                 st.session_state["button_states"][current_index] = st.session_state["show_proceed_button"]
 
-    # Display success message if the user got the answer right on the first try
-    if st.session_state["attempts"] == 1 and feedback and "fully correct" in feedback:
+    # Render the "Play Audio with Animation" button and feedback
+    if st.session_state.get("feedback") and st.session_state.get("speech_file"):
+        # Only render once per question
+        if not st.session_state["feedback_rendered"][current_index]:
+            speech_file = st.session_state["speech_file"]
+            feedback = st.session_state["feedback"]
+            display_avatar_with_audio_and_typing(speech_file, feedback, 0)
+            st.session_state["feedback_rendered"][current_index] = True
+
+    # Display success message
+    if st.session_state["attempts"] == 1 and st.session_state.get("feedback") and "fully correct" in st.session_state["feedback"]:
         st.success("Great job! You got it right on the first try! 🌟")
+
 
     # Display "Proceed to the next question" button if answer is correct or 3 attempts reached
     if st.session_state.get("show_proceed_button", False) and current_index == st.session_state["most_recent_question_index"]:
