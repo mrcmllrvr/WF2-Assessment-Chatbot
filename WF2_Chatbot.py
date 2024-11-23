@@ -15,7 +15,6 @@ from pathlib import Path
 from sklearn.metrics.pairwise import cosine_similarity
 import tempfile
 from mutagen.mp3 import MP3
-from pydub.utils import mediainfo
 import threading
 
 # Load environment variables and set OpenAI key
@@ -803,6 +802,9 @@ def display_quiz():
                     #         st.error(f"Audio error: {e}")
                     # else:
                     #     st.error("Audio file is missing or not accessible.")
+
+                else:
+                    simulate_typing_with_moving_lips(feedback)
 
                 # Process attempts and correct answers
                 if "fully correct" in feedback:
