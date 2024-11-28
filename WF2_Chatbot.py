@@ -20,9 +20,11 @@ import threading
 # Load environment variables and set OpenAI key
 openai.api_key = st.secrets["openai"]["OPENAI_API_KEY"]
 
+
 # Initialize ChromaDB
 CHROMA_DATA_PATH = "chromadb_WF2_chatbot/"
 COLLECTION_NAME = "document_embeddings"
+
 
 # Initialize ChromaDB client and embedding function
 client = chromadb.PersistentClient(path=CHROMA_DATA_PATH)
@@ -37,22 +39,26 @@ collection = client.get_or_create_collection(name=COLLECTION_NAME, embedding_fun
 # Set up Streamlit app
 st.set_page_config(page_title="Quiz Chatbot", page_icon=":books:", layout="wide")
 
+
 # Function to convert an image file to a base64 string
 def image_to_base64(image_path):
     with open(image_path, "rb") as image_file:
         return base64.b64encode(image_file.read()).decode("utf-8")
 
-# Paths to the avatar images (Replace with your actual paths)
-user_avatar_path = "female-avatar.png"
-assistant_avatar_path = "avatar_open.png"
+
+# Paths to the wf and tarbiyah logo
+logo_tarbiyah_path = "logo-tarbiyah.png"
+
 
 # Load avatar images (assuming you have two images for simplicity)
 avatar_open_path = "avatar_open.png"
 avatar_closed_path = "avatar_closed.png"
 
-# Convert images to base64
-user_avatar_base64 = image_to_base64(user_avatar_path)
-assistant_avatar_base64 = image_to_base64(assistant_avatar_path)
+# Ensure paths to avatars are properly encoded
+open_avatar_base64 = image_to_base64(avatar_open_path)
+closed_avatar_base64 = image_to_base64(avatar_closed_path)
+
+
 
 # CSS for chat UI
 st.markdown("""
@@ -109,110 +115,70 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+
 # Define questions and right answers
 questions = [
-    {
-        "scenario_number": "Scenario 1",
-        "scenario": "You are planning to fast for Ramadan, and your community has announced the sighting of the new crescent moon. However, your friend in another city claims they haven't seen the moon yet.",
-        "question": "How would you respond to your friend based on what you've learned about the different moon sightings in different places?",
-        "key_points": [
-            "Moon sighting times vary across different locations",
-            "Local conditions and visibility can affect moon sightings",
-            "Time zones influence sighting reports in different areas"
-        ],
-        "example_response": "The new crescent moon may not be visible everywhere on the same evening. Due to local conditions and time zones, one city may see the moon while another city may not.",
-        "context": "The Islamic lunar calendar depends on the phases of the moon, and the new month starts with the sighting of the crescent moon. Since cities to the west may see the moon after eastern locations, the sighting can vary regionally.",
-        "specific_section": "The Phases of the Moon"
-    },
-    {
-        "scenario_number": "Scenario 2",
-        "scenario": "It's the start of a new Islamic month, and you want to perform the recommended actions. You have a busy school schedule but still want to follow the sunnah.",
-        "question": "What are two simple actions you could do at the beginning of the new month, and why are they beneficial?",
-        "key_points": [
-            "Giving charity as a recommended act",
-            "Reciting a dua or prayer",
-            "Explanation of benefits such as blessings, protection from misdeeds, and spiritual growth"
-        ],
-        "example_response": "I could give charity and recite a dua. Giving charity helps protect against harm, while the dua brings blessings for the new month.",
-        "context": "Recommended actions include charity, prayer, and reflection on personal growth as the new month is a time for renewing commitment and dedication to Allah.",
-        "specific_section": "Recommended actions when sighting the new moon"
-    },
-    {
-        "scenario_number": "Scenario 3",
-        "scenario": "Your classmate asks why Muslims use a lunar calendar instead of the solar calendar, especially since solar dates stay the same every year.",
-        "question": "How would you explain the benefit of using a lunar calendar in Islam, particularly for occasions like Ramadan or Hajj?",
-        "key_points": [
-            "The lunar calendar causes Islamic events to move through different seasons",
-            "Using the lunar calendar allows for varied seasonal experiences",
-            "The lunar months begin with the sighting of the crescent moon"
-        ],
-        "example_response": "The lunar calendar lets Islamic events like Ramadan and Hajj rotate through all seasons. This way, Muslims can experience these occasions in different weather conditions and day lengths over time.",
-        "context": "The lunar calendar is about 11 days shorter than the solar calendar, causing Islamic events to shift through different seasons, allowing diverse experiences for Muslims.",
-         "specific_section": "Benefit of a lunar calendar"
-    },
-    {
-        "scenario_number": "Scenario 4",
-        "scenario": "Imagine it's a clear night, and you see the new crescent moon for the first time. You remember learning about the phases of the moon and the significance in Islam.",
-        "question": "What would be a good way to reflect on this moment, and which dua could you recite? Why is this a meaningful time?",
-        "key_points": [
-            "Expressing gratitude and making a dua upon seeing the new crescent moon",
-            "Reciting the dua narrated by Imam Zayn al-Abidin (a) for moonsighting",
-            "Reflecting on the passage of time and personal growth as Muslims"
-        ],
-        "example_response": "I would make a dua, reflecting on the start of the new month as a chance to improve myself and draw closer to Allah. The dua of Imam Zayn al-Abidin (a) emphasizes gratitude and repentance.",
-        "context": "Seeing the crescent moon symbolizes the start of a new month. It’s a moment to reflect on time, and we can recite a dua, such as the one from Imam Zayn al-Abidin, to seek blessings and guidance.",
-        "specific_section": "Faith in action"
-    },
-    {
-        "scenario_number": "Scenario 5",
-        "scenario": "You’re participating in a group discussion at the mosque about the differences in moonsighting rulings among scholars. One person mentions that if a city to the east sees the moon, another city to the west should follow.",
-        "question": "Can you explain Ayatullah Sistani’s opinion on the unity of horizons and when you can follow the moon sighting of another city?",
-        "key_points": [
-            "Ayatullah Sistani’s ruling on unity of horizons",
-            "Conditions under which one city can follow another's moon sighting",
-            "Cities with similar horizons can follow each other's moon sightings"
-        ],
-        "example_response": "According to Ayatullah Sistani, cities with similar horizons can follow each other in moon sighting. If one city to the east sees the moon, a city to the west may also observe the new month.",
-        "context": "Ayatullah Sistani supports the unity of horizons, allowing cities with similar geographic horizons to follow each other's sightings, which considers Earth’s spherical nature and rotation.",
-        "specific_section": "Differences of opinion"
-    }
+   {
+       "scenario_number": "Scenario 1", # Originally Q5
+       "scenario": "Why is the starting date of an Islamic lunar month so important for us as Muslims?",
+       "question": "What is the significance of determining the start of an Islamic lunar month?",
+       "key_points": [
+           "It determines the essential religious days during that month",
+           "We know when important religious occasions are",
+           "We can do any religious practices for that month or dates within that month"
+       ],
+       "note": "Any 1 of the key points is considered fully correct",
+       "learn_more": "https://tarbiyah.education/topic/module-6f-06-intro/?tb_action=complete&prev_step_id=40639"
+   },
+   {
+       "scenario_number": "Scenario 2", # Originally Q4
+       "scenario": "Your parents heard that your madrasah lesson was about moonsighting. They want to know what you learnt about establishing that a new lunar month has begun.",
+       "question": "According to Ayatullah Sistani, there are 4 ways. Can you tell them 2?",
+       "key_points": [
+           "You see the crescent moon with your own eyes",
+           "A group of people that you trust say that the moon has been sighted",
+           "Two trusted people [adil] say that they have seen the moon", 
+           "Thirty days have passed in the last month"
+       ],
+       "note": "Any 2 of the key points are considered fully correct",
+       "learn_more": "https://tarbiyah.education/topic/module-6f-06-ways-to-tell-it-is-the-new-month/?tb_action=complete&prev_step_id=40617"
+   },
+   {
+       "scenario_number": "Scenario 3", # Originally Q2
+       "scenario": "It is the start of a new Islamic month, and you want to perform the mustahabb (recommended) actions.",
+       "question": "What are three simple acts you can do at the beginning of a new lunar month?",
+       "key_points": [
+           "Giving charity",
+           "Reciting a 2 rak'ah prayer",
+           "Reciting the du'a for seeing a new crescent"
+       ],
+       "learn_more": "https://tarbiyah.education/topic/module-6f-06-recommended-actions-when-sighting-the-new-moon/"
+   },
+   {
+       "scenario_number": "Scenario 4", # Originally Q3
+       "scenario": "Your classmate asks you why Muslims use a lunar calendar instead of the solar calendar, especially since the number of days in a month is fixed in a solar calendar.",
+       "question": "How would you explain the benefit of using a lunar calendar, particularly for occasions like Ramadhan or Hajj?",
+       "key_points": [
+           "Islamic events rotate through different seasons",
+           "Different regions experience occasions in varying seasonal conditions",
+           "Same person can experience events (like Ramadhan/Hajj) in different seasons throughout their life"
+       ],
+       "note": "Any 1 of the key points is considered fully correct",
+       "learn_more": "https://tarbiyah.education/topic/module-6f-06-benefit-of-a-lunar-calendar/?tb_action=complete&prev_step_id=40606"
+   },
+   {
+       "scenario_number": "Scenario 5", # Originally Q1 
+       "scenario": "Your local Islamic community has announced the sighting of the new crescent moon marking the start of the Holy month of Ramadhan. Your friend Bilal lives in another city that is on the same horizon and claims they haven't seen the moon yet.",
+       "question": "What would you advise him to do based on what you've learned about moon sightings in different places, according to the opinion of Ayatullah Sistani?",
+       "key_points": [
+           "Same horizon can follow each other's moon sighting",
+           "No need for separate sighting in each city if same horizon",
+           "Established sighting in one city applies to united horizons"
+       ],
+       "note": "Any 1 of the key points is considered fully correct",
+       "learn_more": "https://tarbiyah.education/topic/module-6f-06-differences-of-opinion/?tb_action=complete&prev_step_id=40648"
+   }
 ]
-
-
-# Define system prompt
-system_prompt = """
-    Role: As a proficient educational assistant dedicated to supporting learners, your primary responsibilities include providing targeted feedback based solely on the information from Module 6F, Lesson 06 on moonsighting. Your goal is to assess understanding and guide the student effectively through structured feedback and hints without deviating from the source material.
-
-    Tasks:
-    1. Critical Analysis and Feedback:
-        - Assess each student's response individually based on the concepts covered in Module 6F, Lesson 06, to evaluate their understanding.
-        - Provide concise, targeted feedback to confirm, correct, or enhance understanding, strictly following the information from Module 6F, Lesson 06.
-        - Ensure feedback directly reflects the terminology and explanations from Module 6F, Lesson 06, avoiding any additional general knowledge or interpretations not found in the lesson.
-        - Use simple, clear language to maintain a supportive and educational tone.
-    
-    Handling Inquiries:
-    1. For critiquing responses:
-        - Offer direct feedback using only the information from Module 6F, Lesson 06. Avoid summarizing assessments or introducing unrelated information.
-        - Provide concise additional explanations to enhance clarity or address missing details, referring strictly to Module 6F, Lesson 06.
-        - Correct inaccuracies and guide students back to relevant concepts from Module 6F, Lesson 06 when responses are off-topic or incorrect.
-        - Employ guided questions and additional information from Module 6F, Lesson 06 as necessary for follow-up queries or corrections.
-    
-    Response Guidelines:
-    1. Ensure all feedback is accurate and exclusively supported by Module 6F, Lesson 06.
-    2. Provide corrective guidance and additional information if responses misinterpret a concept, using only Module 6F, Lesson 06.
-    3. Use concise questions and dialogue to encourage critical thinking, strictly adhering to Module 6F, Lesson 06.
-    4. Maintain a supportive and educational tone, using simple language and practical examples from Module 6F, Lesson 06.
-    5. Aim for engagement through direct and educational feedback, adhering strictly to Module 6F, Lesson 06 without summarizing or providing extraneous details.
-    6. Avoid explicitly mentioning the source of information; act as if Module 6F, Lesson 06 is the inherent source of truth.
-    7. In instances where the student provides an incomprehensible answer, avoid interpreting the answer—respond solely based on known concepts in Module 6F, Lesson 06.
-    8. When the name "Muhammad" is mentioned, add "(saww)" immediately after it.
-    9. Determine if the student's answer is fully correct by checking if it covers all key points.
-    10. If the answer covers all key points, state first "This answer is fully correct" AT ALL TIMES. 
-    11. If the answer is partially correct (some key points are covered), provide subtle hints to encourage deeper thinking, without stating it’s fully correct.
-    12. If the answer is incorrect (no key points are covered), provide a gentle nudge or guiding question without directly revealing the answer.
-    13. After 3 unsuccessful attempts, reveal the correct answer and suggest reviewing the SPECIFIC sub topic under {specific_section} that covers the question from Module 6F, Lesson 06 Moonsighting
-    14. Always respond in first person to maintain a supportive and educational tone.
-"""
 
 
 # Function to get embeddings for a given text
@@ -220,6 +186,7 @@ def get_embedding(text, model="text-embedding-ada-002"):
     text = text.replace("\n", " ")  # Preprocess text
     response = client.embeddings.create(input=[text], model=model)  # Call OpenAI API
     return np.array(response.data[0].embedding)
+
 
 # Function to query ChromaDB for the most relevant context based on the question
 def retrieve_context(query, specific_section=None):
@@ -250,58 +217,131 @@ def retrieve_context(query, specific_section=None):
 
 
 def generate_feedback(question_data, user_answer, attempt_number):
+    # Initialize session storage for previous answers if not already done
+    if "previous_answers" not in st.session_state or not isinstance(st.session_state["previous_answers"], list):
+        st.session_state["previous_answers"] = []
+
+    # Add the current user answer to session-based memory, avoiding duplicates
+    if user_answer.strip() and user_answer not in st.session_state["previous_answers"]:
+        st.session_state["previous_answers"].append(user_answer)
+
+    # Combine all previous answers for cumulative evaluation
+    all_answers = " ".join(st.session_state["previous_answers"]).replace("\n", " ")
+
+
+
+    # Generate dynamic assessment criteria based on question's note
+    if "note" in question_data and "Any 2 of the key points are considered fully correct" in question_data["note"]:
+        assessment_criteria = (
+            f"If any 2 key points are covered in the student's {all_answers} across attempts, the answer is fully correct. "
+            "If no key points are covered, the answer is incorrect."
+        )
+    elif "note" in question_data and "Any 1 of the key points is considered fully correct" in question_data["note"]:
+        assessment_criteria = (
+            "If any key point is covered in the student's answer, the answer is fully correct."
+            "If no key points are covered, the answer is incorrect."
+        )
+    else: # all key points are needed
+        assessment_criteria = (
+            f"If all key points are covered in {all_answers} across attempts, the answer is fully correct. "
+            "If some key points are covered, the answer is partially correct."
+            "If no key points are covered, the answer is incorrect."
+        )
+
+    # Dynamically generate the lesson link
+    lesson_link = f"[here]({question_data['learn_more']})"
+
+    # Retrieve lesson context
     context_text = retrieve_context(question_data["question"])
 
-    # Define hint level based on the attempt number
+    # Adjust hint level based on the attempt number
     if attempt_number == 1:
         hint_level = "Provide high-level hints to encourage exploration without direct answers."
     elif attempt_number == 2:
         hint_level = "Provide specific hints or reference missing key points indirectly."
-    elif attempt_number == 3:
-        # If it’s the third attempt, get specific section from ChromaDB
-        specific_section = question_data.get("specific_section", "General Guidance")
-        context_text = retrieve_context(question_data["question"], specific_section=specific_section)
-        hint_level = "Provide a full answer and suggest reviewing specific content or subtopic that contain the answer for the question from Module 6F, Lesson 06."
+    else:  # attempt_number >= 3
+        hint_level = "Provide the complete answer and direct the student to review this topic at: {lesson_link}"
 
-    # Construct prompt for GPT-4o to handle all feedback
-    prompt = f"""
-    You are assessing a student's understanding of Module 6F, Lesson 06 on moonsighting. Here’s the scenario and question:
-    
-    Scenario: {question_data["scenario"]}
-    Question: {question_data["question"]}
-    Key Points: {', '.join(question_data['key_points'])}
-    Lesson Context: {context_text}
-    
-    Student's Answer: {user_answer}
-    Attempt Number: {attempt_number}
+    system_prompt = f"""
+    Your primary task is to evaluate the student's understanding based on **ALL their cumulative answers provided so far** ({all_answers}).
+    Always consider all previous responses cumulatively when determining if they have covered enough key points across attempts.
 
-    Task:
-    1. Determine if the student's answer is fully correct by checking if it covers all key points.
-    2. If the answer covers all key points, state "This answer is fully correct" AT ALL TIMES.
-    3. If the answer is partially correct (some key points are covered), provide subtle hints to encourage deeper thinking, without stating it’s fully correct.
-    4. If the answer is incorrect (no key points are covered), provide a gentle nudge or guiding question without directly revealing the answer.
-    5. After 3 unsuccessful attempts, reveal the correct answer and suggest reviewing the SPECIFIC sub topic that covers the question from Module 6F, Lesson 06 Moonsighting
-    6. Always respond in first person to maintain a supportive and educational tone.
+    ### Scenario Details:
+    - **Scenario:** {question_data["scenario"]}
+    - **Question:** {question_data["question"]}
+    - **Key Points:** {', '.join(question_data['key_points'])}
+    - **Lesson Context:** {context_text}
+    - **Student's Cumulative Answers (all attempts):** {all_answers}
+    - **Current Attempt Number:** {attempt_number}
+    - **Evaluation Criteria:** {assessment_criteria}
+
+    ### Tasks:
+    1. **Critical Analysis and Feedback:**
+        - Evaluate the **cumulative answers** ({all_answers}) to determine if the student has met the evaluation criteria.
+        - Always analyze progress cumulatively by identifying all key points covered so far.
+        - Never assess only the current response in isolation—always include prior answers in your evaluation.
+        - Base your assessment strictly on the concepts covered in Module 6F, Lesson 06.
+        - Provide clear, targeted feedback to confirm, correct, or enhance understanding, while ensuring feedback uses terminology and explanations from Module 6F, Lesson 06.
+        - Avoid introducing unrelated information or general knowledge not found in Module 6F, Lesson 06.
+        - Use simple, supportive language to maintain an educational tone.
+        - Always reassess the student's progress cumulatively after each input and update the progress statement based on all key points covered so far.
+        - If the cumulative answers already meet the criteria for the required number of key points, do not restate partial progress.
+        - If a student has cumulatively covered all key points required, clearly state, "You've now covered X out of Y key points" without ambiguity.
 
 
+    2. **Handling User's Responses:**
+        - Always critique responses using the **cumulative answers** ({all_answers}) from all attempts so far.
+        - If the student has mentioned a key point in any of their prior responses, acknowledge it as part of their cumulative progress.
+        - Provide feedback that reflects their progress across all attempts, not just the current attempt.
+        - Highlight any missing key points based on the cumulative evaluation.
 
-    Respond educationally and supportively, strictly adhering to the lesson content and avoiding unrelated information or outside knowledge.
-    
+    ### Response Guidelines:
+    1. Always evaluate **cumulative answers** ({all_answers}) and strictly adhere to the following criteria:
+        {assessment_criteria}
+    2. If the answer meets the criteria for a fully correct response:
+        - Start your feedback by stating, "This answer is fully correct."
+        - Mention any additional key points not included to enhance the student's understanding.
+    3. If the answer is partially correct:
+        - Acknowledge progress, e.g., "You've covered X out of the required Y key points so far."
+        - Clearly indicate which points are missing, referencing the student's cumulative answers ({all_answers}).
+    4. If the answer is incorrect:
+        - Gently nudge the student toward a correct response without revealing the answer.
+        - Ensure the evaluation references all previous responses ({all_answers}).
+    5. After 3 unsuccessful attempts:
+        - Reveal the correct answer and suggest reviewing the topic in more detail.
+    6. Provide the lesson link ({lesson_link}) only when the answer is fully correct or after 3 attempts.
+    7. If the response is unrelated to the topic:
+        - Politely acknowledge it is outside the topic, and redirect to the relevant question.
+        - Example response: "This seems unrelated to our current topic. Let’s get back to [insert specific question/topic here]."
+
+    ### Additional Notes:
+    - Never assess the student's current response in isolation—always cross-check with the cumulative answers ({all_answers}).
+    - Respond in first person and maintain a supportive, educational tone.
+    - Avoid explicitly mentioning the source of information; treat Module 6F, Lesson 06 as the inherent source of truth.
+    - When the name "Muhammad" appears, always add "(saww)" immediately after it.
+
+    ### Hint Level (Based on Attempt Number):
     {hint_level}
     """
+
+    print(f"DEBUG: Cumulative answers: {all_answers}")
+    print(f"DEBUG: System Prompt: {system_prompt}")
+
+
 
     # Generate feedback using GPT-4o
     response = openai.chat.completions.create(
         model="gpt-4o",
         messages=[
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": prompt}
+            {"role": "user", "content": user_answer}
         ]
     )
 
     feedback = response.choices[0].message.content
 
     return feedback
+
 
 
 def match_key_points(user_answer, key_points, threshold=0.7):
@@ -317,23 +357,22 @@ def match_key_points(user_answer, key_points, threshold=0.7):
 
     return matched_points
 
+
 # Main function to display the assessment instructions
 def display_instructions():
-    st.title("MCE Chatbot")
+    st.title("Deen Drill Bot")
     st.write("*Salaam alaykum! I will help you assess and guide on Module 6F, Lesson 06 about Moonsighting.*")
-    st.subheader("Assessment Instructions:")
+    st.subheader("Guidelines:")
 
     st.markdown("""
-    1. **Question Structure**: The assessment has 5 scenario-based questions. Questions will be asked in a specific order.
+    1. **Questions**: There are 5 scenario based questions for this topic. They will be asked in a specific order..
     """, unsafe_allow_html=True)
     st.markdown("""
-    2. **Attempts and Feedback**: You have 3 attempts to answer each question correctly.
-        - *If your response is incorrect or only partially correct*, I will provide subtle guidance, nudges, or prompts to encourage you to think deeper without directly revealing the answer.
-        - *Strictness*: I will be strict in evaluating your responses, considering only complete answers as fully correct. If your answer is partial, I will ask for additional details or clarification before moving to the next question.
-        - *Final Explanation*: After 3 unsuccessful attempts, I will provide the correct answer along with directions to review specific lesson content in more detail.
-    """, unsafe_allow_html=True)
-    st.markdown("""
-    3. **Correct Answers**: When you provide a correct answer, I will acknowledge it, offer additional insights if needed, and then proceed to the next question.
+    2. **Answers**: You have 3 attempts to answer each question correctly.
+        - *If your response is correct*, I will acknowledge it, offer additional insights if needed, and then proceed to the next question.
+        - *If your response is incorrect or partially correct*, I will provide subtle guidance, nudges, or prompts to encourage you to think deeper without directly revealing the answer.
+        - I will be precise in evaluating your responses and will consider only complete answers as fully correct. If you give me a partial answer, I will ask for additional details or clarification before moving to the next question.
+        - If you are unable to answer correctly after 3 attempts, I will provide the correct answer along with directions to review specific lesson content in more detail.
     """, unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True) 
@@ -345,6 +384,7 @@ def display_instructions():
         # Centering the button in the middle column
         if st.button("Start Assessment", key="start_assessment", on_click=start_assessment):
             pass  # on_click will handle the transition
+
 
 def start_assessment():
     st.session_state["page"] = "assessment"
@@ -376,12 +416,31 @@ def generate_speech(text, voice="nova"):
     
 # Function to display progress in the sidebar
 def display_sidebar_progress():
+    st.sidebar.markdown(
+    """
+    <hr style="margin: 0px 0 20px 0; border: 1px solid #ddd;" />
+    """,
+    unsafe_allow_html=True,
+    )
+    st.sidebar.image("logo-wf.png", use_container_width=True)
+
+    st.sidebar.markdown(
+    """
+    <hr style="margin: 5px 0 15px 0; border: 1px solid #ddd;" />
+    """,
+    unsafe_allow_html=True,
+    )
+    st.sidebar.image("logo-tarbiyah.png", use_container_width=True)
+    st.sidebar.markdown(
+    """
+    <hr style="margin: 0px 0 60px 0; border: 1px solid #ddd;" />
+    """,
+    unsafe_allow_html=True,
+    )
+
     progress = st.session_state.get("progress", {"correct_answers": 0, "attempts_per_question": {}})
     st.sidebar.header("⏳ Your Progress", divider='blue')
     st.sidebar.metric("Questions Answered Correctly:", progress["correct_answers"])
-    
-    st.sidebar.write("")
-    st.sidebar.write("")
 
     # Settings
     st.sidebar.header("⚙️ Settings", divider='blue')
@@ -419,34 +478,19 @@ def display_sidebar_progress():
         """,
         unsafe_allow_html=True
     )
+    
+    
+    st.sidebar.markdown(
+    """
+    <hr style="margin: 60px 0 10px 0; border: 1px solid #ddd;" />
+    """,
+    unsafe_allow_html=True,
+)
+    st.sidebar.button("Restart Quiz", on_click=restart_quiz)
 
-    st.sidebar.write("")
-    st.sidebar.write("")
-    st.sidebar.write("")
-    st.sidebar.write("")
-    st.sidebar.write("")
-    st.sidebar.write("")
-    st.sidebar.write("")
-    st.sidebar.write("")
-    st.sidebar.write("")
-    st.sidebar.write("")
-    st.sidebar.write("")
-    st.sidebar.write("")
-
-    st.sidebar.button("Restart Quiz", icon="🔄", on_click=restart_quiz)
 
 # Function to simulate typing effect
 def simulate_typing_with_moving_lips(text, delay=0.01, batch_size=20, lip_sync_interval=4, container=None):
-    """
-    Simulates typing text with moving lips by alternating between two avatar images.
-    
-    Parameters:
-        text (str): The text to display as typing.
-        delay (float): Time delay between updates for typing effect.
-        batch_size (int): Number of characters to display at each update.
-        lip_sync_interval (int): How often to toggle mouth position, in terms of display updates.
-        container (streamlit.empty): Optional container to display the animation in.
-    """
     if container is None:
         container = st.empty()
         
@@ -460,12 +504,12 @@ def simulate_typing_with_moving_lips(text, delay=0.01, batch_size=20, lip_sync_i
         if lip_sync_counter % lip_sync_interval == 0:
             open_mouth = not open_mouth
 
-        avatar_img = avatar_open_path if open_mouth else avatar_closed_path
+        avatar_img = open_avatar_base64 if open_mouth else closed_avatar_base64
 
         container.markdown(
             f"""
             <div class="assistant-message">
-                <img src="data:image/png;base64,{image_to_base64(avatar_img)}" class="assistant-avatar" alt="Assistant Avatar">
+                <img src="data:image/png;base64,{avatar_img}" class="assistant-avatar" alt="Assistant Avatar">
                 <div class="message-bubble assistant-bubble">{displayed_text}</div>
             </div>
             """,
@@ -479,7 +523,7 @@ def simulate_typing_with_moving_lips(text, delay=0.01, batch_size=20, lip_sync_i
     container.markdown(
         f"""
         <div class="assistant-message">
-            <img src="data:image/png;base64,{image_to_base64(avatar_closed_path)}" class="assistant-avatar" alt="Assistant Avatar">
+            <img src="data:image/png;base64,{closed_avatar_base64}" class="assistant-avatar" alt="Assistant Avatar">
             <div class="message-bubble assistant-bubble">{displayed_text}</div>
         </div>
         """,
@@ -487,14 +531,7 @@ def simulate_typing_with_moving_lips(text, delay=0.01, batch_size=20, lip_sync_i
     )
 
 
-
-
-
-
 def display_avatar_with_audio_and_typing(audio_path, text, duration):
-    # Ensure paths to avatars are properly encoded
-    open_avatar_base64 = image_to_base64(avatar_open_path)
-    closed_avatar_base64 = image_to_base64(avatar_closed_path)
 
      # Get the selected font size from session state
     font_size_map = {
@@ -559,25 +596,20 @@ def display_avatar_with_audio_and_typing(audio_path, text, duration):
     st.components.v1.html(html_code, height=500)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # Function to handle proceeding to the next question
 def proceed_to_next_question():
+    # Increment the question index
     st.session_state["current_question_index"] += 1
     st.session_state["attempts"] = 0
-    st.session_state["show_proceed_button"] = False
+
+    # Clear chat history for the new question
+    st.session_state["chat_history"] = []
+
+    # Reset any other session variables for the new question if needed
+    st.session_state["speech_file"] = None
+    st.session_state["feedback"] = None
+
+
 
 # Function to handle returning to the previous question
 def return_to_previous_question():
@@ -586,11 +618,13 @@ def return_to_previous_question():
         st.session_state["attempts"] = st.session_state["attempts_per_question"].get(st.session_state["current_question_index"], 0)
         st.session_state["show_proceed_button"] = True  # Disable input for previous question
 
+
 # Function to handle resuming the most recent question
 def resume_current_question():
     st.session_state["current_question_index"] = st.session_state["most_recent_question_index"]
     st.session_state["attempts"] = st.session_state["attempts_per_question"].get(st.session_state["current_question_index"], 0)
     st.session_state["show_proceed_button"] = st.session_state["button_states"].get(st.session_state["current_question_index"], False)
+
 
 # Function to handle restarting the quiz
 def restart_quiz():
@@ -604,6 +638,7 @@ def restart_quiz():
     st.session_state["attempts_per_question"] = {}
     st.session_state["show_proceed_button"] = False
     st.session_state["question_completed"] = {}
+
 
 # Function to handle completing the quiz
 def display_results():
@@ -633,10 +668,10 @@ def display_results():
 
         st.divider()
     
-
     # Add an "Exit" button at the bottom
     if st.button("Exit", on_click=exit_quiz):
         st.write("Returning to the instruction page...")  # Optional message
+
 
 def complete_quiz():
     st.session_state["page"] = "complete"
@@ -677,7 +712,7 @@ def display_chat_history(chat_history):
             st.markdown(
                 f"""
                 <div class="assistant-message">
-                    <img src="data:image/png;base64,{assistant_avatar_base64}" class="assistant-avatar" alt="Assistant Avatar">
+                    <img src="data:image/png;base64,{closed_avatar_base64}" class="assistant-avatar" alt="Assistant Avatar">
                     <div class="message-bubble assistant-bubble">{content}</div>
                 </div>
                 """, 
@@ -836,7 +871,7 @@ def display_quiz():
 
 
     # Display "Proceed to the next question" button if answer is correct or 3 attempts reached
-    if st.session_state.get("show_proceed_button", False) and current_index == st.session_state["most_recent_question_index"]:
+    if st.session_state.get("show_proceed_button", False):
         # Check if we are on the last question
         if current_index == len(questions) - 1:
             # Only display "Complete Quiz" button if answer is fully correct or attempts reached 3
