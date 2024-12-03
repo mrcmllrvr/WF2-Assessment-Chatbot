@@ -119,119 +119,63 @@ st.markdown("""
 # Define questions and right answers
 questions = [
    {
-       "scenario_number": "Scenario 5", # Originally Q5
-       "scenario": "Your local Islamic community has confirmed the sighting of the new crescent moon marking the start of Ramadhan. Your friend Bilal lives in another city that shares the same horizon with your city.",
-       "question": "According to Ayatullah Sistani's ruling, can Bilal start his Ramadhan fasts based on your city's moon sighting? Explain your answer.",
+       "scenario_number": "Scenario 1", # Originally Q5
+       "scenario": "Why is the starting date of an Islamic lunar month so important for us as Muslims?",
+       "question": "What is the significance of determining the start of an Islamic lunar month?",
        "key_points": [
-           "Yes, Bilal can rely on the sighting from your city because they share the same horizon",
-           "The first of the month established in one city is automatically established in other cities that share the same horizon",
-           ],
-        "partial_answer": [
-            "Only mentions that Bilal can rely on the sighting without explaining the horizon connection",
-            "Only mentions shared horizon without explicitly stating that the month is established",
-            "Gives correct conclusion but incorrect reasoning",
-            "Does not put 'Yes' but the explanation is correct"
-        ],
-        "incorrect_answer": [
-            "States that each city must sight independently",
-            "States that shared horizon is not relevant",
-            "Confuses geographical proximity with horizon unity",
-            "Suggests additional requirements beyond shared horizon"
-        ],
-       "note": "Any 2 of the correct answers is considered fully correct",
+           "It determines the essential religious days during that month",
+           "We know when important religious occasions are",
+           "We can do any religious practices for that month or dates within that month"
+       ],
+       "note": "Any 1 of the key points is considered fully correct",
        "learn_more": "https://tarbiyah.education/topic/module-6f-06-intro/?tb_action=complete&prev_step_id=40639"
    },
    {
        "scenario_number": "Scenario 2", # Originally Q4
-       "scenario": "When you learn that a new Islamic month has begun,",
-       "question": "name any TWO mustahabb (recommended) actions that you should try to perform on the first night.",
+       "scenario": "Your parents heard that your madrasah lesson was about moonsighting. They want to know what you learnt about establishing that a new lunar month has begun.",
+       "question": "According to Ayatullah Sistani, there are 4 ways. Can you tell them 2?",
        "key_points": [
-            "Giving charity",
-            "Praying 2 rak'ah prayer",
-            "Reciting the du'a for seeing the new crescent"
-        ],
-        "partial_answer": [
-            "Lists only one correct specific action",
-            "Lists two but one is too vague (e.g., 'pray' instead of 'pray 2 rak'ah')",
-            "Uses imprecise language (e.g., 'give money' instead of 'give charity/sadaqah')"
-        ],
-        "incorrect_answer": [
-            "Lists no correct actions",
-            "Lists completely different actions",
-            "Lists actions too vaguely to be identifiable",
-            "Confuses these with actions for other occasions"
-        ],
+           "You see the crescent moon with your own eyes",
+           "A group of people that you trust say that the moon has been sighted",
+           "Two trusted people [adil] say that they have seen the moon", 
+           "Thirty days have passed in the last month"
+       ],
        "note": "Any 2 of the key points are considered fully correct",
        "learn_more": "https://tarbiyah.education/topic/module-6f-06-ways-to-tell-it-is-the-new-month/?tb_action=complete&prev_step_id=40617"
    },
    {
        "scenario_number": "Scenario 3", # Originally Q2
-       "scenario": "Your classmate asks you why Muslims use a lunar calendar instead of the solar calendar, especially since the number of days in a month is fixed in a solar calendar.",
-       "question": "What is one important benefit of using the lunar calendar for Islamic occasions like Ramadhan and Hajj?",
+       "scenario": "It is the start of a new Islamic month, and you want to perform the mustahabb (recommended) actions.",
+       "question": "What are three simple acts you can do at the beginning of a new lunar month?",
        "key_points": [
-            "Clearly explain that Islamic occasions move through different seasons over the years",
-            "Include reference to either Ramadhan, Hajj, or both as examples",
-            "Show understanding that this movement is due to the lunar calendar",
+           "Giving charity",
+           "Reciting a 2 rak'ah prayer",
+           "Reciting the du'a for seeing a new crescent"
        ],
-        "partial_answer": [
-            "Only mentions that dates change without explaining seasonal movement",
-            "Explains seasonal changes but doesn't connect it to Islamic occasions",
-            "Makes the point about different regions experiencing occasions in different seasons without mentioning the yearly progression"
-        ],
-        "incorrect_answer": [
-            "Only discusses fixed vs changing month lengths",
-            "Focuses on moon sighting rules rather than seasonal benefits",
-            "Gives unrelated benefits of the lunar calendar",
-            "Suggests that lunar calendar was chosen for ease of use"
-        ],
        "learn_more": "https://tarbiyah.education/topic/module-6f-06-recommended-actions-when-sighting-the-new-moon/"
    },
    {
        "scenario_number": "Scenario 4", # Originally Q3
-       "scenario": "Your parents heard that your madrasah lesson was about moonsighting. They want to know what you learned about establishing that a new lunar month has begun.",
-       "question": " According to Ayatullah Sistani, there are 4 ways. Can you tell them 2?",
+       "scenario": "Your classmate asks you why Muslims use a lunar calendar instead of the solar calendar, especially since the number of days in a month is fixed in a solar calendar.",
+       "question": "How would you explain the benefit of using a lunar calendar, particularly for occasions like Ramadhan or Hajj?",
        "key_points": [
-           "Personal sighting (seeing the crescent moon with your own eyes)",
-           "Testimony of a reliable group (e.g., trusted local Shia community/mosque/organization)",
-           "Testimony of two adil (trusted) people who have seen the moon",
-           "Completion of 30 days of the current month"
+           "Islamic events rotate through different seasons",
+           "Different regions experience occasions in varying seasonal conditions",
+           "Same person can experience events (like Ramadhan/Hajj) in different seasons throughout their life"
        ],
-       "partial_answer": [
-           "Lists one correct way precisely and one vaguely",
-           "Lists one correct way only",
-           "Uses imprecise language but shows understanding (e.g., 'when good people see it' instead of 'two adil people')",
-           "Gives correct examples but doesn't clearly state the principle"
-       ],
-       "incorrect_answer": [
-           "Lists no correct ways",
-           "Confuses different methods",
-           "Mentions unrelated criteria",
-           "Misunderstands what makes testimony acceptable",
-           "Confuses individual vs group testimony requirements"
-       ],
-       "note": "Any 2 of the key points are considered fully correct",
+       "note": "Any 1 of the key points is considered fully correct",
        "learn_more": "https://tarbiyah.education/topic/module-6f-06-benefit-of-a-lunar-calendar/?tb_action=complete&prev_step_id=40606"
    },
    {
        "scenario_number": "Scenario 5", # Originally Q1 
-       "scenario": "",
-       "question": "Why is it so important for Muslims to know when a new Islamic month begins?",
+       "scenario": "Your local Islamic community has announced the sighting of the new crescent moon marking the start of the Holy month of Ramadhan. Your friend Bilal lives in another city that is on the same horizon and claims they haven't seen the moon yet.",
+       "question": "What would you advise him to do based on what you've learned about moon sightings in different places, according to the opinion of Ayatullah Sistani?",
        "key_points": [
-           "Express understanding that the start date determines when religious obligations/occasions occur",
-           "Reference at least one of: 1.) Religious obligations/practices tied to specific months (like Ramadhan) 2. Important religious occasions/commemorations 3. Essential religious days during the month",          
+           "Same horizon can follow each other's moon sighting",
+           "No need for separate sighting in each city if same horizon",
+           "Established sighting in one city applies to united horizons"
        ],
-       "partial_answer": [
-           "Gives a vague answer about religious importance without specifics",
-           "Only mentions calendar dates without connecting to religious significance",
-           "Only gives examples without explaining the importance",
-           "Focuses only on one type of occasion (e.g., only fasting) without showing broader understanding",
-       ],
-       "incorrect_answer": [
-           "Focuses only on moon sighting methods",
-           "Discusses lunar vs solar calendar differences",
-           "Gives cultural rather than religious reasons",
-           "Mentions unrelated benefits of Islamic calendar",
-       ],
+       "note": "Any 1 of the key points is considered fully correct",
        "learn_more": "https://tarbiyah.education/topic/module-6f-06-differences-of-opinion/?tb_action=complete&prev_step_id=40648"
    }
 ]
@@ -289,8 +233,8 @@ def generate_feedback(question_data, user_answer, attempt_number):
     # Generate dynamic assessment criteria based on question's note
     if "note" in question_data and "Any 2 of the key points are considered fully correct" in question_data["note"]:
         assessment_criteria = (
-            f"If any 2 key points are covered in the student's {all_answers} across attempts, the answer is fully correct. ",
-            "If no key points are covered, the answer is incorrect.",
+            f"If any 2 key points are covered in the student's {all_answers} across attempts, the answer is fully correct. "
+            "If no key points are covered, the answer is incorrect."
         )
     elif "note" in question_data and "Any 1 of the key points is considered fully correct" in question_data["note"]:
         assessment_criteria = (
@@ -337,12 +281,13 @@ def generate_feedback(question_data, user_answer, attempt_number):
         - Always analyze progress cumulatively by identifying all key points covered so far.
         - Never assess only the current response in isolation—always include prior answers in your evaluation.
         - Base your assessment strictly on the concepts covered in Module 6F, Lesson 06.
-        - Provide clear, targeted feedback to confirm, correct, or enhance understanding, while ensuring feedback uses terminology and explanations from Module 6F, Lesson 06.
+        - WHEN IN THIRD ATTEMPT, provide clear, targeted feedback to confirm, correct, or enhance understanding, while ensuring feedback uses terminology and explanations from Module 6F, Lesson 06.
         - Avoid introducing unrelated information or general knowledge not found in Module 6F, Lesson 06.
         - Use simple, supportive language to maintain an educational tone.
         - Always reassess the student's progress cumulatively after each input and update the progress statement based on all key points covered so far.
         - If the cumulative answers already meet the criteria for the required number of key points, do not restate partial progress.
         - If a student has cumulatively covered all key points required, clearly state, "You've now covered X out of Y key points" without ambiguity.
+        - IF THE ATTEMPT IS LESS THAN 3, DO NOT GIVE THE ANSWER AWAY IF THE ANSWER IS PARTIALLY CORRECT OR INCORRECT - JUST PROVIDE FEEDBACK.
 
 
     2. **Handling User's Responses:**
@@ -350,6 +295,7 @@ def generate_feedback(question_data, user_answer, attempt_number):
         - If the student has mentioned a key point in any of their prior responses, acknowledge it as part of their cumulative progress.
         - Provide feedback that reflects their progress across all attempts, not just the current attempt.
         - Highlight any missing key points based on the cumulative evaluation.
+        - IF THE ATTEMPT IS LESS THAN 3, DO NOT GIVE THE ANSWER AWAY IF THE ANSWER IS PARTIALLY CORRECT OR INCORRECT - JUST PROVIDE FEEDBACK.
 
     ### Response Guidelines:
     1. Always evaluate **cumulative answers** ({all_answers}) and strictly adhere to the following criteria:
@@ -358,11 +304,11 @@ def generate_feedback(question_data, user_answer, attempt_number):
         - Start your feedback by stating, "This answer is fully correct."
         - Mention any additional key points not included to enhance the student's understanding.
     3. If the answer is partially correct:
-        - Acknowledge progress, e.g., "Your answer is partially correct. You've covered X out of the required Y key points so far."
-        - Clearly indicate which points are missing, referencing the student's cumulative answers ({all_answers}).
+        - Acknowledge progress, e.g., "You've covered X out of the required Y key points so far."
+        - Clearly indicate which points are missing BUT DO NOT DIRECTLY OR INDIRECTLY REVEAL THE ANSWER, referencing the student's cumulative answers ({all_answers}).
     4. If the answer is incorrect:
-        - State "Your answer is incorrect."
-        - Gently nudge the student toward a correct response without revealing the answer.
+        - Gently nudge the student toward a correct response WITHOUT revealing the answer.
+        - DO NOT DIRECTLY OR INDIRECTLY REVEAL THE ANSWER.
         - Ensure the evaluation references all previous responses ({all_answers}).
     5. After 3 unsuccessful attempts:
         - Reveal the correct answer and suggest reviewing the topic in more detail.
@@ -370,12 +316,14 @@ def generate_feedback(question_data, user_answer, attempt_number):
     7. If the response is unrelated to the topic:
         - Politely acknowledge it is outside the topic, and redirect to the relevant question.
         - Example response: "This seems unrelated to our current topic. Let’s get back to [insert specific question/topic here]."
+    8. IF THE ATTEMPT IS LESS THAN 3, DO NOT GIVE THE ANSWER AWAY IF THE ANSWER IS PARTIALLY CORRECT OR INCORRECT - JUST PROVIDE FEEDBACK.
 
     ### Additional Notes:
     - Never assess the student's current response in isolation—always cross-check with the cumulative answers ({all_answers}).
     - Respond in first person and maintain a supportive, educational tone.
     - Avoid explicitly mentioning the source of information; treat Module 6F, Lesson 06 as the inherent source of truth.
     - When the name "Muhammad" appears, always add "(saww)" immediately after it.
+    - IF THE ATTEMPT IS LESS THAN 3, DO NOT GIVE THE ANSWER AWAY IF THE ANSWER IS PARTIALLY CORRECT OR INCORRECT - JUST PROVIDE FEEDBACK.
 
     ### Hint Level (Based on Attempt Number):
     {hint_level}
