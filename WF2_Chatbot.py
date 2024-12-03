@@ -118,76 +118,30 @@ st.markdown("""
 
 # Define questions and right answers
 questions = [
-   {
-       "scenario_number": "Scenario 1", # Originally Q5
-       "scenario": "Your local Islamic community has confirmed the sighting of the new crescent moon marking the start of Ramadhan. Your friend Bilal lives in another city that shares the same horizon with your city.",
-       "question": "According to Ayatullah Sistani's ruling, can Bilal start his Ramadhan fasts based on your city's moon sighting? Explain your answer.",
+    {
+       "scenario_number": "Scenario 1", # Originally Q1 
+       "scenario": "The New Islamic Month",
+       "question": "Why is it so important for Muslims to know when a new Islamic month begins?",
        "key_points": [
-           "Yes, Bilal can rely on the sighting from your city because they share the same horizon",
-           "The first of the month established in one city is automatically established in other cities that share the same horizon",
-           ],
-        "partial_answer": [
-            "Only mentions that Bilal can rely on the sighting without explaining the horizon connection",
-            "Only mentions shared horizon without explicitly stating that the month is established",
-            "Gives correct conclusion but incorrect reasoning",
-            "Does not put 'Yes' but the explanation is correct"
-        ],
-        "incorrect_answer": [
-            "States that each city must sight independently",
-            "States that shared horizon is not relevant",
-            "Confuses geographical proximity with horizon unity",
-            "Suggests additional requirements beyond shared horizon"
-        ],
-       "note": "Any 2 of the correct answers is considered fully correct",
-       "learn_more": "https://tarbiyah.education/topic/module-6f-06-intro/?tb_action=complete&prev_step_id=40639"
-   },
-   {
-       "scenario_number": "Scenario 2", # Originally Q4
-       "scenario": "When you learn that a new Islamic month has begun,",
-       "question": "name any TWO mustahabb (recommended) actions that you should try to perform on the first night.",
-       "key_points": [
-            "Giving charity",
-            "Praying 2 rak'ah prayer",
-            "Reciting the du'a for seeing the new crescent"
-        ],
-        "partial_answer": [
-            "Lists only one correct specific action",
-            "Lists two but one is too vague (e.g., 'pray' instead of 'pray 2 rak'ah')",
-            "Uses imprecise language (e.g., 'give money' instead of 'give charity/sadaqah')"
-        ],
-        "incorrect_answer": [
-            "Lists no correct actions",
-            "Lists completely different actions",
-            "Lists actions too vaguely to be identifiable",
-            "Confuses these with actions for other occasions"
-        ],
-       "note": "Any 2 of the key points are considered fully correct",
-       "learn_more": "https://tarbiyah.education/topic/module-6f-06-ways-to-tell-it-is-the-new-month/?tb_action=complete&prev_step_id=40617"
-   },
-   {
-       "scenario_number": "Scenario 3", # Originally Q2
-       "scenario": "Your classmate asks you why Muslims use a lunar calendar instead of the solar calendar, especially since the number of days in a month is fixed in a solar calendar.",
-       "question": "What is one important benefit of using the lunar calendar for Islamic occasions like Ramadhan and Hajj?",
-       "key_points": [
-            "Clearly explain that Islamic occasions move through different seasons over the years",
-            "Include reference to either Ramadhan, Hajj, or both as examples",
-            "Show understanding that this movement is due to the lunar calendar",
+           "Express understanding that the start date determines when religious obligations/occasions occur",
+           "Reference at least one of: 1.) Religious obligations/practices tied to specific months (like Ramadhan) 2. Important religious occasions/commemorations 3. Essential religious days during the month",          
        ],
-        "partial_answer": [
-            "Only mentions that dates change without explaining seasonal movement",
-            "Explains seasonal changes but doesn't connect it to Islamic occasions",
-            "Makes the point about different regions experiencing occasions in different seasons without mentioning the yearly progression"
-        ],
-        "incorrect_answer": [
-            "Only discusses fixed vs changing month lengths",
-            "Focuses on moon sighting rules rather than seasonal benefits",
-            "Gives unrelated benefits of the lunar calendar",
-            "Suggests that lunar calendar was chosen for ease of use"
-        ],
-       "learn_more": "https://tarbiyah.education/topic/module-6f-06-recommended-actions-when-sighting-the-new-moon/"
+       "partial_answer": [
+           "Gives a vague answer about religious importance without specifics",
+           "Only mentions calendar dates without connecting to religious significance",
+           "Only gives examples without explaining the importance",
+           "Focuses only on one type of occasion (e.g., only fasting) without showing broader understanding",
+       ],
+       "incorrect_answer": [
+           "Focuses only on moon sighting methods",
+           "Discusses lunar vs solar calendar differences",
+           "Gives cultural rather than religious reasons",
+           "Mentions unrelated benefits of Islamic calendar",
+       ],
+       "learn_more": "https://tarbiyah.education/topic/module-6f-06-differences-of-opinion/?tb_action=complete&prev_step_id=40648"
    },
    {
-       "scenario_number": "Scenario 4", # Originally Q3
+       "scenario_number": "Scenario 2", # Originally Q3
        "scenario": "Your parents heard that your madrasah lesson was about moonsighting. They want to know what you learned about establishing that a new lunar month has begun.",
        "question": " According to Ayatullah Sistani, there are 4 ways. Can you tell them 2?",
        "key_points": [
@@ -213,27 +167,73 @@ questions = [
        "learn_more": "https://tarbiyah.education/topic/module-6f-06-benefit-of-a-lunar-calendar/?tb_action=complete&prev_step_id=40606"
    },
    {
-       "scenario_number": "Scenario 5", # Originally Q1 
-       "scenario": "",
-       "question": "Why is it so important for Muslims to know when a new Islamic month begins?",
+       "scenario_number": "Scenario 3", # Originally Q2
+       "scenario": "Your classmate asks you why Muslims use a lunar calendar instead of the solar calendar, especially since the number of days in a month is fixed in a solar calendar.",
+       "question": "What is one important benefit of using the lunar calendar for Islamic occasions like Ramadhan and Hajj?",
        "key_points": [
-           "Express understanding that the start date determines when religious obligations/occasions occur",
-           "Reference at least one of: 1.) Religious obligations/practices tied to specific months (like Ramadhan) 2. Important religious occasions/commemorations 3. Essential religious days during the month",          
+            "Clearly explain that Islamic occasions move through different seasons over the years",
+            "Include reference to either Ramadhan, Hajj, or both as examples",
+            "Show understanding that this movement is due to the lunar calendar",
        ],
-       "partial_answer": [
-           "Gives a vague answer about religious importance without specifics",
-           "Only mentions calendar dates without connecting to religious significance",
-           "Only gives examples without explaining the importance",
-           "Focuses only on one type of occasion (e.g., only fasting) without showing broader understanding",
-       ],
-       "incorrect_answer": [
-           "Focuses only on moon sighting methods",
-           "Discusses lunar vs solar calendar differences",
-           "Gives cultural rather than religious reasons",
-           "Mentions unrelated benefits of Islamic calendar",
-       ],
-       "learn_more": "https://tarbiyah.education/topic/module-6f-06-differences-of-opinion/?tb_action=complete&prev_step_id=40648"
-   }
+        "partial_answer": [
+            "Only mentions that dates change without explaining seasonal movement",
+            "Explains seasonal changes but doesn't connect it to Islamic occasions",
+            "Makes the point about different regions experiencing occasions in different seasons without mentioning the yearly progression"
+        ],
+        "incorrect_answer": [
+            "Only discusses fixed vs changing month lengths",
+            "Focuses on moon sighting rules rather than seasonal benefits",
+            "Gives unrelated benefits of the lunar calendar",
+            "Suggests that lunar calendar was chosen for ease of use"
+        ],
+       "learn_more": "https://tarbiyah.education/topic/module-6f-06-recommended-actions-when-sighting-the-new-moon/"
+   },
+   {
+       "scenario_number": "Scenario 4", # Originally Q4
+       "scenario": "When you learn that a new Islamic month has begun,",
+       "question": "name any TWO mustahabb (recommended) actions that you should try to perform on the first night.",
+       "key_points": [
+            "Giving charity",
+            "Praying 2 rak'ah prayer",
+            "Reciting the du'a for seeing the new crescent"
+        ],
+        "partial_answer": [
+            "Lists only one correct specific action",
+            "Lists two but one is too vague (e.g., 'pray' instead of 'pray 2 rak'ah')",
+            "Uses imprecise language (e.g., 'give money' instead of 'give charity/sadaqah')"
+        ],
+        "incorrect_answer": [
+            "Lists no correct actions",
+            "Lists completely different actions",
+            "Lists actions too vaguely to be identifiable",
+            "Confuses these with actions for other occasions"
+        ],
+       "note": "Any 2 of the key points are considered fully correct",
+       "learn_more": "https://tarbiyah.education/topic/module-6f-06-ways-to-tell-it-is-the-new-month/?tb_action=complete&prev_step_id=40617"
+   },
+   {
+       "scenario_number": "Scenario 5", # Originally Q5
+       "scenario": "Your local Islamic community has confirmed the sighting of the new crescent moon marking the start of Ramadhan. Your friend Bilal lives in another city that shares the same horizon with your city.",
+       "question": "According to Ayatullah Sistani's ruling, can Bilal start his Ramadhan fasts based on your city's moon sighting? Explain your answer.",
+       "key_points": [
+           "Yes, Bilal can rely on the sighting from your city because they share the same horizon",
+           "The first of the month established in one city is automatically established in other cities that share the same horizon",
+           ],
+        "partial_answer": [
+            "Only mentions that Bilal can rely on the sighting without explaining the horizon connection",
+            "Only mentions shared horizon without explicitly stating that the month is established",
+            "Gives correct conclusion but incorrect reasoning",
+            "Does not put 'Yes' but the explanation is correct"
+        ],
+        "incorrect_answer": [
+            "States that each city must sight independently",
+            "States that shared horizon is not relevant",
+            "Confuses geographical proximity with horizon unity",
+            "Suggests additional requirements beyond shared horizon"
+        ],
+       "note": "Any 2 of the correct answers is considered fully correct",
+       "learn_more": "https://tarbiyah.education/topic/module-6f-06-intro/?tb_action=complete&prev_step_id=40639"
+   },
 ]
 
 
