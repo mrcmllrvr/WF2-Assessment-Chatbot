@@ -119,7 +119,7 @@ st.markdown("""
 # Define questions and right answers
 questions = [
    {
-       "scenario_number": "Scenario 5", # Originally Q5
+       "scenario_number": "Scenario 1", # Originally Q5
        "scenario": "Your local Islamic community has confirmed the sighting of the new crescent moon marking the start of Ramadhan. Your friend Bilal lives in another city that shares the same horizon with your city.",
        "question": "According to Ayatullah Sistani's ruling, can Bilal start his Ramadhan fasts based on your city's moon sighting? Explain your answer.",
        "key_points": [
@@ -426,7 +426,7 @@ def match_key_points(user_answer, key_points, threshold=0.7):
 
 # Main function to display the assessment instructions
 def display_instructions():
-    st.title("Deen Drill Bot")
+    st.title("MCE Assessment Tool")
     st.write("*Salaam alaykum! I will help you assess and guide on Module 6F, Lesson 06 about Moonsighting.*")
     st.subheader("Guidelines:")
 
