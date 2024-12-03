@@ -312,9 +312,9 @@ def generate_feedback(question_data, user_answer, attempt_number):
 
     # Adjust hint level based on the attempt number
     if attempt_number == 1:
-        hint_level = "Provide high-level hints to encourage exploration without direct answers."
+        hint_level = "Provide high-level hints to encourage exploration without direct answers. DO NOT GIVE THE ANSWER AWAY IF THE ANSWER IS PARTIALLY CORRECT OR INCORRECT - JUST PROVIDE FEEDBACK."
     elif attempt_number == 2:
-        hint_level = "Provide specific hints or reference missing key points indirectly."
+        hint_level = "Provide specific hints or reference missing key points indirectly. DO NOT GIVE THE ANSWER AWAY IF THE ANSWER IS PARTIALLY CORRECT OR INCORRECT - JUST PROVIDE FEEDBACK."
     else:  # attempt_number >= 3
         hint_level = "Provide the complete answer and direct the student to review this topic at: {lesson_link}"
 
@@ -333,6 +333,7 @@ def generate_feedback(question_data, user_answer, attempt_number):
 
     ### Tasks:
     1. **Critical Analysis and Feedback:**
+        - WHEN EVALUATING THE FEEDBACK, ALWAYS LOOK AT THE CUMULATIVE ANSWERS ({all_answers}) FROM ALL ATTEMPTS SO FAR.
         - Evaluate the **cumulative answers** ({all_answers}) to determine if the student has met the evaluation criteria.
         - Always analyze progress cumulatively by identifying all key points covered so far.
         - Never assess only the current response in isolation—always include prior answers in your evaluation.
@@ -344,6 +345,7 @@ def generate_feedback(question_data, user_answer, attempt_number):
         - If the cumulative answers already meet the criteria for the required number of key points, do not restate partial progress.
         - If a student has cumulatively covered all key points required, clearly state, "You've now covered X out of Y key points" without ambiguity.
         - IF THE ATTEMPT IS LESS THAN 3, DO NOT GIVE THE ANSWER AWAY IF THE ANSWER IS PARTIALLY CORRECT OR INCORRECT - JUST PROVIDE FEEDBACK.
+        - WHEN EVALUATING THE FEEDBACK, ALWAYS LOOK AT THE CUMULATIVE ANSWERS ({all_answers}) FROM ALL ATTEMPTS SO FAR.
 
     2. **Handling User's Responses:**
         - Always critique responses using the **cumulative answers** ({all_answers}) from all attempts so far.
@@ -351,27 +353,30 @@ def generate_feedback(question_data, user_answer, attempt_number):
         - Provide feedback that reflects their progress across all attempts, not just the current attempt.
         - Highlight any missing key points based on the cumulative evaluation.
         - IF THE ATTEMPT IS LESS THAN 3, DO NOT GIVE THE ANSWER AWAY IF THE ANSWER IS PARTIALLY CORRECT OR INCORRECT - JUST PROVIDE FEEDBACK.
+        - WHEN EVALUATING THE FEEDBACK, ALWAYS LOOK AT THE CUMULATIVE ANSWERS ({all_answers}) FROM ALL ATTEMPTS SO FAR.
 
     ### Response Guidelines:
-    1. Always evaluate **cumulative answers** ({all_answers}) and strictly adhere to the following criteria:
+    1. WHEN EVALUATING THE FEEDBACK, ALWAYS LOOK AT THE CUMULATIVE ANSWERS ({all_answers}) FROM ALL ATTEMPTS SO FAR.
+    2. Always evaluate **cumulative answers** ({all_answers}) and strictly adhere to the following criteria:
         {assessment_criteria}
-    2. If the answer meets the criteria for a fully correct response:
+    3. If the answer meets the criteria for a fully correct response:
         - Start your feedback by stating, "This answer is fully correct."
         - Mention any additional key points not included to enhance the student's understanding.
-    3. If the answer is partially correct:
+    4. If the answer is partially correct:
         - Acknowledge progress, e.g., "Your answer is partially correct. You've covered X out of the required Y key points so far."
         - Clearly indicate which points are missing, referencing the student's cumulative answers ({all_answers}).
-    4. If the answer is incorrect:
+    5. If the answer is incorrect:
         - State "Your answer is incorrect."
         - Gently nudge the student toward a correct response without revealing the answer.
         - Ensure the evaluation references all previous responses ({all_answers}).
-    5. After 3 unsuccessful attempts:
+    6. After 3 unsuccessful attempts:
         - Reveal the correct answer and suggest reviewing the topic in more detail.
-    6. Provide the lesson link ({lesson_link}) only when the answer is fully correct or after 3 attempts.
-    7. If the response is unrelated to the topic:
+    7. Provide the lesson link ({lesson_link}) only when the answer is fully correct or after 3 attempts.
+    8. If the response is unrelated to the topic:
         - Politely acknowledge it is outside the topic, and redirect to the relevant question.
         - Example response: "This seems unrelated to our current topic. Let’s get back to [insert specific question/topic here]."
-    8. IF THE ATTEMPT IS LESS THAN 3, DO NOT GIVE THE ANSWER AWAY IF THE ANSWER IS PARTIALLY CORRECT OR INCORRECT - JUST PROVIDE FEEDBACK.
+    9. IF THE ATTEMPT IS LESS THAN 3, DO NOT GIVE THE ANSWER AWAY IF THE ANSWER IS PARTIALLY CORRECT OR INCORRECT - JUST PROVIDE FEEDBACK.
+    10.  WHEN EVALUATING THE FEEDBACK, ALWAYS LOOK AT THE CUMULATIVE ANSWERS ({all_answers}) FROM ALL ATTEMPTS SO FAR.
 
     ### Additional Notes:
     - Never assess the student's current response in isolation—always cross-check with the cumulative answers ({all_answers}).
@@ -379,6 +384,7 @@ def generate_feedback(question_data, user_answer, attempt_number):
     - Avoid explicitly mentioning the source of information; treat Module 6F, Lesson 06 as the inherent source of truth.
     - When the name "Muhammad" appears, always add "(saww)" immediately after it.
     - IF THE ATTEMPT IS LESS THAN 3, DO NOT GIVE THE ANSWER AWAY IF THE ANSWER IS PARTIALLY CORRECT OR INCORRECT - JUST PROVIDE FEEDBACK.
+    - WHEN EVALUATING THE FEEDBACK, ALWAYS LOOK AT THE CUMULATIVE ANSWERS ({all_answers}) FROM ALL ATTEMPTS SO FAR.
 
     ### Hint Level (Based on Attempt Number):
     {hint_level}
