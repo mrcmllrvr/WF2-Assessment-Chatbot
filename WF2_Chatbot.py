@@ -441,7 +441,7 @@ def display_instructions():
         st.image("avatar.png", use_container_width=True)
 
     with col2:
-        st.title("MCE Assessment Tool")
+        st.title("MCE Know-Bot")
         st.write("*Salaam alaykum! I will help you assess and guide on Module 6F, Lesson 06 about Moonsighting.*")
 
     st.subheader("Guidelines:")
@@ -833,6 +833,8 @@ def display_quiz():
     # # Update the most recent question index if we're on the latest question
     # if current_index >= st.session_state["most_recent_question_index"]:
     #     st.session_state["most_recent_question_index"] = current_index
+
+    st.title("MCE Know-Bot")
 
     col1, col2 = st.columns([1,4])
 
