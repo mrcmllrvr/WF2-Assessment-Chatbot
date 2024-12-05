@@ -123,8 +123,9 @@ questions = [
        "scenario": "The New Islamic Month",
        "question": "Why is it so important for Muslims to know when a new Islamic month begins?",
        "key_points": [
-           "Express understanding that the start date determines when religious obligations/occasions occur",
-           "Reference at least one of: 1.) Religious obligations/practices tied to specific months (like Ramadhan) 2. Important religious occasions/commemorations 3. Essential religious days during the month",          
+            "Express understanding that the start date determines when religious obligations/occasions occur. (Religious obligations/practices tied to specific months (like Ramadhan)"
+            "Express understanding that the start date determines when religious obligations/occasions occur.  (Important religious occasions/commemorations)",
+            "Express understanding that the start date determines when religious obligations/occasions occur. (Essential religious days during the month)",
        ],
        "partial_answer": [
            "Gives a vague answer about religious importance without specifics",
@@ -138,12 +139,13 @@ questions = [
            "Gives cultural rather than religious reasons",
            "Mentions unrelated benefits of Islamic calendar",
        ],
+       "note": "Any 1 of the key points is considered right answer",
        "learn_more": "https://tarbiyah.education/topic/module-6f-06-differences-of-opinion/?tb_action=complete&prev_step_id=40648"
    },
    {
        "scenario_number": "Scenario 2", # Originally Q3
        "scenario": "Your parents heard that your madrasah lesson was about moonsighting. They want to know what you learned about establishing that a new lunar month has begun.",
-       "question": " According to Ayatullah Sistani, there are 4 ways. Can you tell them 2?",
+       "question": "According to Ayatullah Sistani, there are 4 ways. Can you tell them 2?",
        "key_points": [
            "Personal sighting (seeing the crescent moon with your own eyes)",
            "Testimony of a reliable group (e.g., trusted local Shia community/mosque/organization)",
@@ -163,7 +165,7 @@ questions = [
            "Misunderstands what makes testimony acceptable",
            "Confuses individual vs group testimony requirements"
        ],
-       "note": "Any 2 of the key points are considered fully correct",
+       "note": "Any 2 of the key points are considered right answer",
        "learn_more": "https://tarbiyah.education/topic/module-6f-06-benefit-of-a-lunar-calendar/?tb_action=complete&prev_step_id=40606"
    },
    {
@@ -208,7 +210,7 @@ questions = [
             "Lists actions too vaguely to be identifiable",
             "Confuses these with actions for other occasions"
         ],
-       "note": "Any 2 of the key points are considered fully correct",
+       "note": "Any 2 of the key points are considered right answer",
        "learn_more": "https://tarbiyah.education/topic/module-6f-06-ways-to-tell-it-is-the-new-month/?tb_action=complete&prev_step_id=40617"
    },
    {
@@ -231,7 +233,7 @@ questions = [
             "Confuses geographical proximity with horizon unity",
             "Suggests additional requirements beyond shared horizon"
         ],
-       "note": "Any 2 of the correct answers is considered fully correct",
+       "note": "Any 2 of the correct answers is considered right answer",
        "learn_more": "https://tarbiyah.education/topic/module-6f-06-intro/?tb_action=complete&prev_step_id=40639"
    },
 ]
@@ -277,6 +279,9 @@ def generate_feedback(question_data, user_answer, attempt_number):
     if "previous_answers" not in st.session_state or not isinstance(st.session_state["previous_answers"], list):
         st.session_state["previous_answers"] = []
 
+    # Store the most recent answer 
+    st.session_state["most_recent_answer"] = user_answer
+
     # Add the current user answer to session-based memory, avoiding duplicates
     if user_answer.strip() and user_answer not in st.session_state["previous_answers"]:
         st.session_state["previous_answers"].append(user_answer)
@@ -287,36 +292,41 @@ def generate_feedback(question_data, user_answer, attempt_number):
 
 
     # Generate dynamic assessment criteria based on question's note
-    if "note" in question_data and "Any 2 of the key points are considered fully correct" in question_data["note"]:
+    if "note" in question_data and "Any 2 of the key points are considered right answer" in question_data["note"]:
         assessment_criteria = (
-            f"If any 2 key points are covered in the student's {all_answers} across attempts, the answer is fully correct. ",
-            "If no key points are covered, the answer is incorrect.",
+            f"If any 2 key points are covered in the student's {all_answers} across attempts, the answer is right answer. ",
+            # f"If any partial answers are covered in the student's {all_answers}, the answer is partially correct.",
+            # f"If incorrect answers are covered in the student's {all_answers}, the answer is incorrect."
+            "If no key points are covered, the answer is incorrect."
         )
-    elif "note" in question_data and "Any 1 of the key points is considered fully correct" in question_data["note"]:
+    elif "note" in question_data and "Any 1 of the key points is considered right answer" in question_data["note"]:
         assessment_criteria = (
-            "If any key point is covered in the student's answer, the answer is fully correct."
+            f"If any key point is covered in the student's {all_answers} accross attempts, the answer is right answer."
+            # f"If any partial answers are covered in the student's {all_answers}, the answer is partially correct.",
+            # f"If incorrect answers are covered in the student's {all_answers}, the answer is incorrect."
             "If no key points are covered, the answer is incorrect."
         )
     else: # all key points are needed
         assessment_criteria = (
-            f"If all key points are covered in {all_answers} across attempts, the answer is fully correct. "
+            f"If all key points are covered in {all_answers} across attempts, the answer is right answer. "
+            # f"If any partial answers are covered in the student's {all_answers}, the answer is partially correct.",
+            # f"If incorrect answers are covered in the student's {all_answers}, the answer is incorrect."
             "If some key points are covered, the answer is partially correct."
             "If no key points are covered, the answer is incorrect."
         )
 
     # Dynamically generate the lesson link
     lesson_link = f"[here]({question_data['learn_more']})"
+    # st.write(f"Debug: Rendering Markdown as: {lesson_link}") 
 
     # Retrieve lesson context
     context_text = retrieve_context(question_data["question"])
 
     # Adjust hint level based on the attempt number
-    if attempt_number == 1:
-        hint_level = "Provide high-level hints to encourage exploration without direct answers. DO NOT GIVE THE ANSWER AWAY IF THE ANSWER IS PARTIALLY CORRECT OR INCORRECT - JUST PROVIDE FEEDBACK."
-    elif attempt_number == 2:
+    if attempt_number == 2:
         hint_level = "Provide specific hints or reference missing key points indirectly. DO NOT GIVE THE ANSWER AWAY IF THE ANSWER IS PARTIALLY CORRECT OR INCORRECT - JUST PROVIDE FEEDBACK."
     else:  # attempt_number >= 3
-        hint_level = "Provide the complete answer and direct the student to review this topic at: {lesson_link}"
+        hint_level = f"Provide the complete answer and direct the student to review this topic at: {lesson_link}"
 
     system_prompt = f"""
     Your primary task is to evaluate the student's understanding based on **ALL their cumulative answers provided so far** ({all_answers}).
@@ -326,6 +336,8 @@ def generate_feedback(question_data, user_answer, attempt_number):
     - **Scenario:** {question_data["scenario"]}
     - **Question:** {question_data["question"]}
     - **Key Points:** {', '.join(question_data['key_points'])}
+    - **Partial Answers:** {', '.join(question_data['partial_answer'])}
+    - **Incorrect Answers:** {', '.join(question_data['incorrect_answer'])}
     - **Lesson Context:** {context_text}
     - **Student's Cumulative Answers (all attempts):** {all_answers}
     - **Current Attempt Number:** {attempt_number}
@@ -359,19 +371,19 @@ def generate_feedback(question_data, user_answer, attempt_number):
     1. WHEN EVALUATING THE FEEDBACK, ALWAYS LOOK AT THE CUMULATIVE ANSWERS ({all_answers}) FROM ALL ATTEMPTS SO FAR.
     2. Always evaluate **cumulative answers** ({all_answers}) and strictly adhere to the following criteria:
         {assessment_criteria}
-    3. If the answer meets the criteria for a fully correct response:
-        - Start your feedback by stating, "This answer is fully correct."
+    3. If the answer meets the criteria for a correct response:
+        - Start your feedback by stating, "This is the right answer."
         - Mention any additional key points not included to enhance the student's understanding.
     4. If the answer is partially correct:
         - Acknowledge progress, e.g., "Your answer is partially correct. You've covered X out of the required Y key points so far."
-        - Clearly indicate which points are missing, referencing the student's cumulative answers ({all_answers}).
+        - Clearly indicate which points are missing WITHOUT directly revealing the answer, referencing the student's cumulative answers ({all_answers}).
     5. If the answer is incorrect:
         - State "Your answer is incorrect."
-        - Gently nudge the student toward a correct response without revealing the answer.
+        - Gently nudge the student toward a correct response WITHOUT revealing the answer.
         - Ensure the evaluation references all previous responses ({all_answers}).
     6. After 3 unsuccessful attempts:
         - Reveal the correct answer and suggest reviewing the topic in more detail.
-    7. Provide the lesson link ({lesson_link}) only when the answer is fully correct or after 3 attempts.
+    7. Provide the lesson link ({lesson_link}) only when the answer is right answer or after 3 attempts.
     8. If the response is unrelated to the topic:
         - Politely acknowledge it is outside the topic, and redirect to the relevant question.
         - Example response: "This seems unrelated to our current topic. Let’s get back to [insert specific question/topic here]."
@@ -389,9 +401,6 @@ def generate_feedback(question_data, user_answer, attempt_number):
     ### Hint Level (Based on Attempt Number):
     {hint_level}
     """
-
-    print(f"DEBUG: Cumulative answers: {all_answers}")
-    print(f"DEBUG: System Prompt: {system_prompt}")
 
 
 
@@ -426,8 +435,15 @@ def match_key_points(user_answer, key_points, threshold=0.7):
 
 # Main function to display the assessment instructions
 def display_instructions():
-    st.title("MCE Assessment Tool")
-    st.write("*Salaam alaykum! I will help you assess and guide on Module 6F, Lesson 06 about Moonsighting.*")
+    col1, col2 = st.columns([1, 4])
+
+    with col1:
+        st.image("avatar.png", use_container_width=True)
+
+    with col2:
+        st.title("MCE Assessment Tool")
+        st.write("*Salaam alaykum! I will help you assess and guide on Module 6F, Lesson 06 about Moonsighting.*")
+
     st.subheader("Guidelines:")
 
     st.markdown("""
@@ -437,7 +453,7 @@ def display_instructions():
     2. **Answers**: You have 3 attempts to answer each question correctly.
         - *If your response is correct*, I will acknowledge it, offer additional insights if needed, and then proceed to the next question.
         - *If your response is incorrect or partially correct*, I will provide subtle guidance, nudges, or prompts to encourage you to think deeper without directly revealing the answer.
-        - I will be precise in evaluating your responses and will consider only complete answers as fully correct. If you give me a partial answer, I will ask for additional details or clarification before moving to the next question.
+        - I will be precise in evaluating your responses and will consider only complete answers as right answers. If you give me a partial answer, I will ask for additional details or clarification before moving to the next question.
         - If you are unable to answer correctly after 3 attempts, I will provide the correct answer along with directions to review specific lesson content in more detail.
     """, unsafe_allow_html=True)
 
@@ -818,23 +834,29 @@ def display_quiz():
     # if current_index >= st.session_state["most_recent_question_index"]:
     #     st.session_state["most_recent_question_index"] = current_index
 
-    # Display question
-    st.write(f"### {current_question['scenario_number']}")
-    st.write(f"*{current_question['scenario']}*")
-    st.write("")
-    st.write(f"**{current_question['question']}**")
+    col1, col2 = st.columns([1,4])
+
+    with col1:
+        st.image("avatar.png", use_container_width=True)
+
+    with col2:
+        # Display question
+        st.write(f"### {current_question['scenario_number']}")
+        st.write(f"*{current_question['scenario']}*")
+        st.write("")
+        st.write(f"**{current_question['question']}**")
 
     # Display chat history using display_chat_history() (initial full history display)
     display_chat_history(st.session_state["chat_histories"][current_index])
 
-    # Check if attempts have reached the maximum or if answer is fully correct
+    # Check if attempts have reached the maximum or if answer is right answer
     if st.session_state["attempts"] >= 3 or st.session_state["question_completed"].get(current_index, False):
         st.error("This question is complete. Please proceed to the next question or review the lesson.", icon="❗")
         st.session_state["show_proceed_button"] = True  # Set the proceed button to display
     else:
         # Show the chat input only if the question is not complete
         if st.session_state["attempts"] < 3 and not st.session_state["question_completed"].get(current_index, False):
-            # Display chat input if answer is not fully correct and attempts are below 3
+            # Display chat input if answer is not right answer and attempts are below 3
             if user_input := st.chat_input("Type your answer here"):
                 # Increment session state attempts immediately
                 st.session_state["attempts"] += 1
@@ -908,7 +930,7 @@ def display_quiz():
                     simulate_typing_with_moving_lips(feedback)
 
                 # Process attempts and correct answers
-                if "fully correct" in feedback:
+                if "right answer" in feedback:
                     st.session_state["show_proceed_button"] = True
                     st.session_state["progress"]["correct_answers"] += 1
                     st.session_state["question_completed"][current_index] = True  # Mark question as completed
@@ -932,7 +954,7 @@ def display_quiz():
             st.session_state["feedback_rendered"][current_index] = True
 
     # Display success message
-    if st.session_state["attempts"] == 1 and st.session_state.get("feedback") and "fully correct" in st.session_state["feedback"]:
+    if st.session_state["attempts"] == 1 and st.session_state.get("feedback") and "right answer" in st.session_state["feedback"]:
         st.success("Great job! You got it right on the first try! 🌟")
 
 
@@ -940,7 +962,7 @@ def display_quiz():
     if st.session_state.get("show_proceed_button", False):
         # Check if we are on the last question
         if current_index == len(questions) - 1:
-            # Only display "Complete Quiz" button if answer is fully correct or attempts reached 3
+            # Only display "Complete Quiz" button if answer is right answer or attempts reached 3
             if st.session_state["question_completed"].get(current_index, False) or st.session_state["attempts"] >= 3:
                 st.button("Complete Quiz", on_click=complete_quiz)
         else:
