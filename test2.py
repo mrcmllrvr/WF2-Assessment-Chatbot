@@ -320,8 +320,7 @@ def generate_feedback(question_data, user_answer, attempt_number):
 
     # Dynamically generate the lesson link
     lesson_link = f"[here]({question_data['learn_more']})"
-    # lesson_link = f"[here]({question_data['learn_more']})"
-    #st.markdown(lesson_link, unsafe_allow_html=True)
+    # lesson_link = f"[here]({question_data['learn_more']})"    
     # st.write(f"Debug: Rendering Markdown as: {lesson_link}") 
 
     # Retrieve lesson context
@@ -426,7 +425,7 @@ def generate_feedback(question_data, user_answer, attempt_number):
     )
 
     feedback = response.choices[0].message.content
-    st.markdown(feedback, unsafe_allow_html=True)
+    #st.markdown(feedback, unsafe_allow_html=True)
     return feedback
 
 
@@ -897,6 +896,7 @@ def display_quiz():
                 with st.spinner('💭 Checking your answer...'):
                     time.sleep(0.5)  # Simulate delay for demonstration
                     feedback = generate_feedback(current_question, user_input, st.session_state["attempts"])
+                    st.markdown(feedback, unsafe_allow_html=True)
 
                 # Append feedback to chat history
                 st.session_state["chat_histories"][current_index].append({"role": "assistant", "content": feedback})
