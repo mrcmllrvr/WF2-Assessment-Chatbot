@@ -896,7 +896,6 @@ def display_quiz():
                 with st.spinner('💭 Checking your answer...'):
                     time.sleep(0.5)  # Simulate delay for demonstration
                     feedback = generate_feedback(current_question, user_input, st.session_state["attempts"])
-                    st.markdown(feedback, unsafe_allow_html=True)
 
                 # Append feedback to chat history
                 st.session_state["chat_histories"][current_index].append({"role": "assistant", "content": feedback})
