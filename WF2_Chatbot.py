@@ -322,12 +322,6 @@ def generate_feedback(question_data, user_answer, attempt_number):
     # Retrieve lesson context
     context_text = retrieve_context(question_data["question"])
 
-    # Adjust hint level based on the attempt number
-    if attempt_number == 2:
-        hint_level = "Provide specific hints or reference missing key points indirectly. DO NOT GIVE THE ANSWER AWAY IF THE ANSWER IS PARTIALLY CORRECT OR INCORRECT - JUST PROVIDE FEEDBACK."
-    else:  # attempt_number >= 3
-        hint_level = f"Provide the complete answer and direct the student to review this topic at: {lesson_link}"
-
     system_prompt = f"""
     Your primary task is to evaluate the student's understanding based on **ALL their cumulative answers provided so far** ({all_answers}).
     Always consider all previous responses cumulatively when determining if they have covered enough key points across attempts.
@@ -349,8 +343,7 @@ def generate_feedback(question_data, user_answer, attempt_number):
         - Evaluate the **cumulative answers** ({all_answers}) to determine if the student has met the evaluation criteria.
         - Always analyze progress cumulatively by identifying all key points covered so far.
         - Never assess only the current response in isolation—always include prior answers in your evaluation.
-        - Base your assessment strictly on the concepts covered in Module 6F, Lesson 06.
-        - Provide clear, targeted feedback to confirm, correct, or enhance understanding, while ensuring feedback uses terminology and explanations from Module 6F, Lesson 06.
+        - Base your assessment strictly on the concepts covered in lesson context of Module 6F, Lesson 06.
         - Avoid introducing unrelated information or general knowledge not found in Module 6F, Lesson 06.
         - Use simple, supportive language to maintain an educational tone.
         - Always reassess the student's progress cumulatively after each input and update the progress statement based on all key points covered so far.
@@ -363,43 +356,93 @@ def generate_feedback(question_data, user_answer, attempt_number):
         - Always critique responses using the **cumulative answers** ({all_answers}) from all attempts so far.
         - If the student has mentioned a key point in any of their prior responses, acknowledge it as part of their cumulative progress.
         - Provide feedback that reflects their progress across all attempts, not just the current attempt.
-        - Highlight any missing key points based on the cumulative evaluation.
         - IF THE ATTEMPT IS LESS THAN 3, DO NOT GIVE THE ANSWER AWAY IF THE ANSWER IS PARTIALLY CORRECT OR INCORRECT - JUST PROVIDE FEEDBACK.
         - WHEN EVALUATING THE FEEDBACK, ALWAYS LOOK AT THE CUMULATIVE ANSWERS ({all_answers}) FROM ALL ATTEMPTS SO FAR.
 
     ### Response Guidelines:
     1. WHEN EVALUATING THE FEEDBACK, ALWAYS LOOK AT THE CUMULATIVE ANSWERS ({all_answers}) FROM ALL ATTEMPTS SO FAR.
+
     2. Always evaluate **cumulative answers** ({all_answers}) and strictly adhere to the following criteria:
         {assessment_criteria}
+
     3. If the answer meets the criteria for a correct response:
         - Start your feedback by stating, "This is the right answer."
         - Mention any additional key points not included to enhance the student's understanding.
-    4. If the answer is partially correct:
-        - Acknowledge progress, e.g., "Your answer is partially correct. You've covered X out of the required Y key points so far."
-        - Clearly indicate which points are missing WITHOUT directly revealing the answer, referencing the student's cumulative answers ({all_answers}).
+
+   4. If the answer is partially correct:
+        - Acknowledge progress, e.g., "Your answer shows some understanding. You're on the right track."
+        - Provide subtle hints that encourage further reflection
+        - Ensure the evaluation references all previous responses ({all_answers}).
+        - Under no circumstances should the chatbot's feedback reveal information that could lead the student directly or indirectly to the correct answer, even if the intent is to provide guidance. The feedback must remain purely open-ended and exploratory.
+        - Avoid any details or suggestions that could guide the student towards the correct answer
+        - Avoid any feedback that could inadvertently provide hints or clues
+
+         Key principles:
+        - NEVER directly state what's missing
+        - Always frame feedback as an invitation to further exploration
+        - Use questions that prompt self-reflection
+        - Maintain an encouraging, supportive tone
+        - NEVER give away the correct answer
+        - Never give away hints/clues that are close to the correct answer
+        - DO NOT USE THE CORRECT ANSWERS AS HINTS
+        - DO NOT USE THE CORRECT ANSWERS AS HINTS
+        - DO NOT USE THE CORRECT ANSWERS AS HINTS
+        - DO NOT USE THE CORRECT ANSWERS AS HINTS
+
     5. If the answer is incorrect:
         - State "Your answer is incorrect."
-        - Gently nudge the student toward a correct response WITHOUT revealing the answer.
+        - Provide thought-provoking questions that help the student reconsider their approach
+        - Use open-ended prompts that encourage critical thinking
+        - Provide subtle guidance, nudges, or prompts to encourage the student to think deeper without revealing the answer.
         - Ensure the evaluation references all previous responses ({all_answers}).
+        - Under no circumstances should the chatbot's feedback reveal information that could lead the student directly or indirectly to the correct answer, even if the intent is to provide guidance. The feedback must remain purely open-ended and exploratory.
+        - Avoid any details or suggestions that could guide the student towards the correct answer
+        - Avoid any feedback that could inadvertently provide hints or clues
+        
+        Key principles:
+        - NEVER directly state what's missing
+        - Always frame feedback as an invitation to further exploration
+        - Use questions that prompt self-reflection
+        - Maintain an encouraging, supportive tone
+        - NEVER give away the correct answer
+        - Never give away hints/clues that are close to the correct answer
+        - DO NOT USE THE CORRECT ANSWERS AS HINTS
+        - DO NOT USE THE CORRECT ANSWERS AS HINTS
+        - DO NOT USE THE CORRECT ANSWERS AS HINTS
+        - DO NOT USE THE CORRECT ANSWERS AS HINTS
+
     6. After 3 unsuccessful attempts:
-        - Reveal the correct answer and suggest reviewing the topic in more detail.
-    7. Provide the lesson link ({lesson_link}) only when the answer is right answer or after 3 attempts.
+        - REVEAL the correct answer and suggest reviewing the topic in more detail. Provide the hyperlink ({lesson_link}) to the lesson.
+        - Enumerate all the correct answers and provide a link to the lesson.
+        - Ensure the evaluation references all previous responses ({all_answers}).
+
+    7. Provide the lesson link ({lesson_link}) only when the answer is right answer OR after 3 attempts. ALWAYS ENSURE TO PROVIDE HYPERLINK TO THE LESSON {lesson_link}.
+
     8. If the response is unrelated to the topic:
         - Politely acknowledge it is outside the topic, and redirect to the relevant question.
         - Example response: "This seems unrelated to our current topic. Let’s get back to [insert specific question/topic here]."
+
     9. IF THE ATTEMPT IS LESS THAN 3, DO NOT GIVE THE ANSWER AWAY IF THE ANSWER IS PARTIALLY CORRECT OR INCORRECT - JUST PROVIDE FEEDBACK.
+
     10.  WHEN EVALUATING THE FEEDBACK, ALWAYS LOOK AT THE CUMULATIVE ANSWERS ({all_answers}) FROM ALL ATTEMPTS SO FAR.
 
     ### Additional Notes:
     - Never assess the student's current response in isolation—always cross-check with the cumulative answers ({all_answers}).
     - Respond in first person and maintain a supportive, educational tone.
-    - Avoid explicitly mentioning the source of information; treat Module 6F, Lesson 06 as the inherent source of truth.
+    - Avoid explicitly mentioning the source of information; treat the lesson context as the inherent source of truth.
     - When the name "Muhammad" appears, always add "(saww)" immediately after it.
     - IF THE ATTEMPT IS LESS THAN 3, DO NOT GIVE THE ANSWER AWAY IF THE ANSWER IS PARTIALLY CORRECT OR INCORRECT - JUST PROVIDE FEEDBACK.
     - WHEN EVALUATING THE FEEDBACK, ALWAYS LOOK AT THE CUMULATIVE ANSWERS ({all_answers}) FROM ALL ATTEMPTS SO FAR.
+    - Under no circumstances should the chatbot's feedback reveal information that could lead the student directly or indirectly to the correct answer, even if the intent is to provide guidance. The feedback must remain purely open-ended and exploratory.
 
-    ### Hint Level (Based on Attempt Number):
-    {hint_level}
+    ### Lesson Link:
+    {lesson_link}
+
+    ### Cumulative Answers ({all_answers}):
+    {all_answers}
+
+    ### Current Attempt Number:
+    Attempt {attempt_number}
     """
 
 
@@ -419,7 +462,7 @@ def generate_feedback(question_data, user_answer, attempt_number):
 
 
 
-def match_key_points(user_answer, key_points, threshold=0.7):
+def match_key_points(user_answer, key_points, threshold=0.80):
     user_embedding = get_embedding(user_answer)
     matched_points = []
 
