@@ -321,7 +321,7 @@ def generate_feedback(question_data, user_answer, attempt_number):
     # Dynamically generate the lesson link
     lesson_link = f"[here]({question_data['learn_more']})"
     # lesson_link = f"[here]({question_data['learn_more']})"
-    st.markdown(lesson_link, unsafe_allow_html=True)
+    #st.markdown(lesson_link, unsafe_allow_html=True)
     # st.write(f"Debug: Rendering Markdown as: {lesson_link}") 
 
     # Retrieve lesson context
@@ -426,7 +426,7 @@ def generate_feedback(question_data, user_answer, attempt_number):
     )
 
     feedback = response.choices[0].message.content
-
+    st.markdown(feedback, unsafe_allow_html=True)
     return feedback
 
 
