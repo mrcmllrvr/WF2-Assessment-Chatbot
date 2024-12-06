@@ -119,7 +119,7 @@ st.markdown("""
 # Define questions and right answers
 questions = [
     {
-       "scenario_number": "Scenario 1", # Originally Q1 
+       "scenario_number": "Question 1", # Originally Q1 
        "scenario": "The New Islamic Month",
        "question": "Why is it so important for Muslims to know when a new Islamic month begins?",
        "key_points": [
@@ -143,11 +143,11 @@ questions = [
        "learn_more": "https://tarbiyah.education/topic/module-6f-06-differences-of-opinion/?tb_action=complete&prev_step_id=40648"
    },
    {
-       "scenario_number": "Scenario 2", # Originally Q3
+       "scenario_number": "Question 2", # Originally Q3
        "scenario": "Your parents heard that your madrasah lesson was about moonsighting. They want to know what you learned about establishing that a new lunar month has begun.",
        "question": "According to Ayatullah Sistani, there are 4 ways. Can you tell them 2?",
        "key_points": [
-           "Personal sighting (seeing the crescent moon with your own eyes)",
+           "Personal sighting (seeing the CRESCENT moon with your own eyes)",
            "Testimony of a reliable group (e.g., trusted local Shia community/mosque/organization)",
            "Testimony of two adil (trusted) people who have seen the moon",
            "Completion of 30 days of the current month"
@@ -169,7 +169,7 @@ questions = [
        "learn_more": "https://tarbiyah.education/topic/module-6f-06-benefit-of-a-lunar-calendar/?tb_action=complete&prev_step_id=40606"
    },
    {
-       "scenario_number": "Scenario 3", # Originally Q2
+       "scenario_number": "Question 3", # Originally Q2
        "scenario": "Your classmate asks you why Muslims use a lunar calendar instead of the solar calendar, especially since the number of days in a month is fixed in a solar calendar.",
        "question": "What is one important benefit of using the lunar calendar for Islamic occasions like Ramadhan and Hajj?",
        "key_points": [
@@ -188,10 +188,11 @@ questions = [
             "Gives unrelated benefits of the lunar calendar",
             "Suggests that lunar calendar was chosen for ease of use"
         ],
+        "note": "Any 1 of the key points is considered right answer",
        "learn_more": "https://tarbiyah.education/topic/module-6f-06-recommended-actions-when-sighting-the-new-moon/"
    },
    {
-       "scenario_number": "Scenario 4", # Originally Q4
+       "scenario_number": "Question 4", # Originally Q4
        "scenario": "When you learn that a new Islamic month has begun,",
        "question": "name any TWO mustahabb (recommended) actions that you should try to perform on the first night.",
        "key_points": [
@@ -214,7 +215,7 @@ questions = [
        "learn_more": "https://tarbiyah.education/topic/module-6f-06-ways-to-tell-it-is-the-new-month/?tb_action=complete&prev_step_id=40617"
    },
    {
-       "scenario_number": "Scenario 5", # Originally Q5
+       "scenario_number": "Question 5", # Originally Q5
        "scenario": "Your local Islamic community has confirmed the sighting of the new crescent moon marking the start of Ramadhan. Your friend Bilal lives in another city that shares the same horizon with your city.",
        "question": "According to Ayatullah Sistani's ruling, can Bilal start his Ramadhan fasts based on your city's moon sighting? Explain your answer.",
        "key_points": [
@@ -294,7 +295,8 @@ def generate_feedback(question_data, user_answer, attempt_number):
     # Generate dynamic assessment criteria based on question's note
     if "note" in question_data and "Any 2 of the key points are considered right answer" in question_data["note"]:
         assessment_criteria = (
-            f"If any 2 key points are covered in the student's {all_answers} across attempts, the answer is right answer. ",
+            f"If any 2 key points are covered in the student's {all_answers} across attempts, the answer is right answer.",
+            f"If only 1 key point is covered in the student's {all_answers}, the answer partially correct.",
             # f"If any partial answers are covered in the student's {all_answers}, the answer is partially correct.",
             # f"If incorrect answers are covered in the student's {all_answers}, the answer is incorrect."
             "If no key points are covered, the answer is incorrect."
@@ -302,6 +304,7 @@ def generate_feedback(question_data, user_answer, attempt_number):
     elif "note" in question_data and "Any 1 of the key points is considered right answer" in question_data["note"]:
         assessment_criteria = (
             f"If any key point is covered in the student's {all_answers} accross attempts, the answer is right answer."
+            "If some key points are covered, the answer is partially correct."
             # f"If any partial answers are covered in the student's {all_answers}, the answer is partially correct.",
             # f"If incorrect answers are covered in the student's {all_answers}, the answer is incorrect."
             "If no key points are covered, the answer is incorrect."
@@ -339,8 +342,8 @@ def generate_feedback(question_data, user_answer, attempt_number):
 
     ### Tasks:
     1. **Critical Analysis and Feedback:**
-        - WHEN EVALUATING THE FEEDBACK, ALWAYS LOOK AT THE CUMULATIVE ANSWERS ({all_answers}) FROM ALL ATTEMPTS SO FAR.
-        - Evaluate the **cumulative answers** ({all_answers}) to determine if the student has met the evaluation criteria.
+        - WHEN EVALUATING THE FEEDBACK, ALWAYS LOOK AT THE CUMULATIVE ANSWERS ({all_answers}) IN ATTEMPTS 1, 2, AND 3.
+        - Evaluate the **cumulative answers** ({all_answers}) to determine if the student has met the evaluation criteria in attempts 1, 2, and 3.
         - Always analyze progress cumulatively by identifying all key points covered so far.
         - Never assess only the current response in isolation—always include prior answers in your evaluation.
         - Base your assessment strictly on the concepts covered in lesson context of Module 6F, Lesson 06.
@@ -350,29 +353,30 @@ def generate_feedback(question_data, user_answer, attempt_number):
         - If the cumulative answers already meet the criteria for the required number of key points, do not restate partial progress.
         - If a student has cumulatively covered all key points required, clearly state, "You've now covered X out of Y key points" without ambiguity.
         - IF THE ATTEMPT IS LESS THAN 3, DO NOT GIVE THE ANSWER AWAY IF THE ANSWER IS PARTIALLY CORRECT OR INCORRECT - JUST PROVIDE FEEDBACK.
-        - WHEN EVALUATING THE FEEDBACK, ALWAYS LOOK AT THE CUMULATIVE ANSWERS ({all_answers}) FROM ALL ATTEMPTS SO FAR.
+        - WHEN EVALUATING THE FEEDBACK, ALWAYS LOOK AT THE CUMULATIVE ANSWERS ({all_answers}) IN ATTEMPTS 1, 2, AND 3.
 
     2. **Handling User's Responses:**
-        - Always critique responses using the **cumulative answers** ({all_answers}) from all attempts so far.
-        - If the student has mentioned a key point in any of their prior responses, acknowledge it as part of their cumulative progress.
+        - Always critique responses in attempts 1, 2, and 3 using the **cumulative answers** ({all_answers}) from all attempts so far.
+        - If the student has mentioned a key point in any of their prior responses, acknowledge it as part of their cumulative progress and add one if another key point has mentioned in the following attempts.
         - Provide feedback that reflects their progress across all attempts, not just the current attempt.
         - IF THE ATTEMPT IS LESS THAN 3, DO NOT GIVE THE ANSWER AWAY IF THE ANSWER IS PARTIALLY CORRECT OR INCORRECT - JUST PROVIDE FEEDBACK.
-        - WHEN EVALUATING THE FEEDBACK, ALWAYS LOOK AT THE CUMULATIVE ANSWERS ({all_answers}) FROM ALL ATTEMPTS SO FAR.
+        - WHEN EVALUATING THE FEEDBACK, ALWAYS LOOK AT THE CUMULATIVE ANSWERS ({all_answers}) IN ATTEMPTS 1, 2, AND 3.
 
     ### Response Guidelines:
-    1. WHEN EVALUATING THE FEEDBACK, ALWAYS LOOK AT THE CUMULATIVE ANSWERS ({all_answers}) FROM ALL ATTEMPTS SO FAR.
+    1. WHEN EVALUATING THE FEEDBACK, ALWAYS LOOK AT THE CUMULATIVE ANSWERS ({all_answers}) IN ATTEMPTS 1, 2, AND 3.
 
     2. Always evaluate **cumulative answers** ({all_answers}) and strictly adhere to the following criteria:
         {assessment_criteria}
 
     3. If the answer meets the criteria for a correct response:
-        - Start your feedback by stating, "This is the right answer."
-        - Mention any additional key points not included to enhance the student's understanding.
+        - WHEN EVALUATING THE STUDENT'S ANSWER, ALWAYS LOOK AT THE CUMULATIVE ANSWERS ({all_answers}) FROM ALL ATTEMPTS SO FAR TO CHECK IF ALL THE CRITERIA HAS MET FOR A CORRECT RESPONSE.
+        - Alway start your feedback by stating, "This is the right answer."
+        - Mention any additional key points not included in the student's acumulated answers ({all_answers}) to enhance the student's understanding.
+        - Provide the link to the lesson ({lesson_link}) to deepen the student's understanding.
 
    4. If the answer is partially correct:
-        - Acknowledge progress, e.g., "Your answer shows some understanding. You're on the right track."
         - Provide subtle hints that encourage further reflection
-        - Ensure the evaluation references all previous responses ({all_answers}).
+        - Ensure the evaluation references all previous responses ({all_answers}) from attempts 1, 2, and 3.
         - Under no circumstances should the chatbot's feedback reveal information that could lead the student directly or indirectly to the correct answer, even if the intent is to provide guidance. The feedback must remain purely open-ended and exploratory.
         - Avoid any details or suggestions that could guide the student towards the correct answer
         - Avoid any feedback that could inadvertently provide hints or clues
@@ -384,9 +388,6 @@ def generate_feedback(question_data, user_answer, attempt_number):
         - Maintain an encouraging, supportive tone
         - NEVER give away the correct answer
         - Never give away hints/clues that are close to the correct answer
-        - DO NOT USE THE CORRECT ANSWERS AS HINTS
-        - DO NOT USE THE CORRECT ANSWERS AS HINTS
-        - DO NOT USE THE CORRECT ANSWERS AS HINTS
         - DO NOT USE THE CORRECT ANSWERS AS HINTS
 
     5. If the answer is incorrect:
@@ -407,16 +408,13 @@ def generate_feedback(question_data, user_answer, attempt_number):
         - NEVER give away the correct answer
         - Never give away hints/clues that are close to the correct answer
         - DO NOT USE THE CORRECT ANSWERS AS HINTS
-        - DO NOT USE THE CORRECT ANSWERS AS HINTS
-        - DO NOT USE THE CORRECT ANSWERS AS HINTS
-        - DO NOT USE THE CORRECT ANSWERS AS HINTS
 
     6. After 3 unsuccessful attempts:
-        - REVEAL the correct answer and suggest reviewing the topic in more detail. Provide the hyperlink ({lesson_link}) to the lesson.
+        - REVEAL the correct answer and suggest reviewing the topic in more detail. ALWAYS provide the hyperlink ({lesson_link}) to the lesson.
         - Enumerate all the correct answers and provide a link to the lesson.
         - Ensure the evaluation references all previous responses ({all_answers}).
 
-    7. Provide the lesson link ({lesson_link}) only when the answer is right answer OR after 3 attempts. ALWAYS ENSURE TO PROVIDE HYPERLINK TO THE LESSON {lesson_link}.
+    7. AALWAYS provide the lesson link ({lesson_link}) ONLY when the answer is right answer OR after 3 attempts. ALWAYS ENSURE TO PROVIDE THE HYPERLINK TO THE LESSON {lesson_link}.
 
     8. If the response is unrelated to the topic:
         - Politely acknowledge it is outside the topic, and redirect to the relevant question.
@@ -425,6 +423,15 @@ def generate_feedback(question_data, user_answer, attempt_number):
     9. IF THE ATTEMPT IS LESS THAN 3, DO NOT GIVE THE ANSWER AWAY IF THE ANSWER IS PARTIALLY CORRECT OR INCORRECT - JUST PROVIDE FEEDBACK.
 
     10.  WHEN EVALUATING THE FEEDBACK, ALWAYS LOOK AT THE CUMULATIVE ANSWERS ({all_answers}) FROM ALL ATTEMPTS SO FAR.
+
+    11. For attempt 1:
+        - check the student's response ({all_answers}) against the cumulative answers
+        
+        For Attempt 2:
+        - check the student's response ({all_answers}) against the cumulative answers
+        
+        For Attempt 3:
+        - check the student's response ({all_answers}) against the cumulative answers
 
     ### Additional Notes:
     - Never assess the student's current response in isolation—always cross-check with the cumulative answers ({all_answers}).
@@ -436,7 +443,7 @@ def generate_feedback(question_data, user_answer, attempt_number):
     - Under no circumstances should the chatbot's feedback reveal information that could lead the student directly or indirectly to the correct answer, even if the intent is to provide guidance. The feedback must remain purely open-ended and exploratory.
 
     ### Lesson Link:
-    {lesson_link}
+    {lesson_link} (please always make this in hyperlink format so that the user can click on this link to go to the lesson)
 
     ### Cumulative Answers ({all_answers}):
     {all_answers}
@@ -444,6 +451,8 @@ def generate_feedback(question_data, user_answer, attempt_number):
     ### Current Attempt Number:
     Attempt {attempt_number}
     """
+
+    print("DEBUG: Cumulative Answers:", all_answers)
 
 
 
@@ -457,7 +466,7 @@ def generate_feedback(question_data, user_answer, attempt_number):
     )
 
     feedback = response.choices[0].message.content
-
+    #st.markdown(feedback, unsafe_allow_html=True)
     return feedback
 
 
@@ -490,7 +499,7 @@ def display_instructions():
     st.subheader("Guidelines:")
 
     st.markdown("""
-    1. **Questions**: There are 5 scenario based questions for this topic. They will be asked in a specific order..
+    1. **Questions**: There are 5 questions for this topic. They will be asked in a specific order.
     """, unsafe_allow_html=True)
     st.markdown("""
     2. **Answers**: You have 3 attempts to answer each question correctly.
@@ -572,7 +581,7 @@ def display_sidebar_progress():
 
     # Text Size
     with st.sidebar.expander("🗚 Text Size", expanded=True):
-        text_size = st.selectbox("Select text size:", ["Small", "Medium", "Large", "Extra Large"], index=1)
+        text_size = st.selectbox("Select text size:", ["Small", "Medium", "Large", "Extra Large"], index=2)
         st.session_state["text_size"] = text_size  # Store selected text size in session state
 
     # TTS settings
@@ -665,7 +674,7 @@ def display_avatar_with_audio_and_typing(audio_path, text, duration):
         "Large": "18px",
         "Extra Large": "20px"
     }
-    selected_font_size = font_size_map[st.session_state.get("text_size", "Medium")]  # Default to "Medium" if not set
+    selected_font_size = font_size_map[st.session_state.get("text_size", "Large")]  # Default to "Large" if not set
 
     # Check if the voice-over was successfully generated
     if audio_path:
@@ -726,6 +735,9 @@ def proceed_to_next_question():
     # Increment the question index
     st.session_state["current_question_index"] += 1
     st.session_state["attempts"] = 0
+    st.session_state["previous_answers"] = [] 
+    st.session_state["most_recent_answer"] = None
+    st.session_state["all_answers"] = []
 
     # Clear chat history for the new question
     st.session_state["chat_history"] = []
@@ -763,6 +775,9 @@ def restart_quiz():
     st.session_state["attempts_per_question"] = {}
     st.session_state["show_proceed_button"] = False
     st.session_state["question_completed"] = {}
+    st.session_state["previous_answers"] = [] 
+    st.session_state["most_recent_answer"] = None
+    st.session_state["all_answers"] = []
 
 
 # Function to handle completing the quiz
@@ -1045,6 +1060,12 @@ def main():
         st.session_state["show_proceed_button"] = False
     if "question_completed" not in st.session_state:
         st.session_state["question_completed"] = {}
+    if "previous_answers" not in st.session_state:
+        st.session_state["previous_answers"] = []
+    if "most_recent_answer" not in st.session_state:
+        st.session_state["most_recent_answer"] = None
+    if "all_answers" not in st.session_state:
+        st.session_state["all_answers"] = []
 
     # Decide which page to display
     if st.session_state["page"] == "instructions":
