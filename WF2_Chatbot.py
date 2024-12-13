@@ -20,9 +20,8 @@ import threading
 # Load environment variables and set OpenAI key
 openai.api_key = st.secrets["openai"]["OPENAI_API_KEY"]
 
-
 # Initialize ChromaDB
-CHROMA_DATA_PATH = "chromadb_WF2_chatbot/"
+CHROMA_DATA_PATH = "chroma/"
 COLLECTION_NAME = "document_embeddings"
 
 
@@ -288,34 +287,38 @@ def generate_feedback(question_data, user_answer, attempt_number):
         st.session_state["previous_answers"].append(user_answer)
 
     # Combine all previous answers for cumulative evaluation
-    all_answers = " ".join(st.session_state["previous_answers"]).replace("\n", " ")
-
-
+    #all_answers = " ".join(st.session_state["previous_answers"]).replace("\n", " ")
+    # ///CAMILLE CHECK HERE
+    all_answers = "\n\t".join([f"Attempt {n+1} Answer : {answer}" for n,answer in enumerate(st.session_state["previous_answers"])])
 
     # Generate dynamic assessment criteria based on question's note
     if "note" in question_data and "Any 2 of the key points are considered right answer" in question_data["note"]:
+        # ///CAMILLE CHECK HERE
         assessment_criteria = (
-            f"If any 2 key points are covered in the student's {all_answers} across attempts, the answer is right answer.",
-            f"If only 1 key point is covered in the student's {all_answers}, the answer partially correct.",
+            "\n## ASSESSMENT CRITERIA\n",
+            f"- If any 2 key points are covered in the student's answers (in current and previous attempts), the current answer to the question is right answer.\n",
+            f"- If only 1 key point is covered in the student's answers (in current and previous attempts), the answer to the question is partially correct.\n",
             # f"If any partial answers are covered in the student's {all_answers}, the answer is partially correct.",
             # f"If incorrect answers are covered in the student's {all_answers}, the answer is incorrect."
-            "If no key points are covered, the answer is incorrect."
+            "- If no key points are covered, the answer is incorrect."
         )
     elif "note" in question_data and "Any 1 of the key points is considered right answer" in question_data["note"]:
         assessment_criteria = (
-            f"If any key point is covered in the student's {all_answers} accross attempts, the answer is right answer."
-            "If some key points are covered, the answer is partially correct."
+            "\n## ASSESSMENT CRITERIA\n",
+            f"- If any key point is covered in the student's answers (in current and previous attempts) accross attempts, the answer is right answer."
+            "- If some key points are covered, the answer is partially correct.\n"
             # f"If any partial answers are covered in the student's {all_answers}, the answer is partially correct.",
             # f"If incorrect answers are covered in the student's {all_answers}, the answer is incorrect."
-            "If no key points are covered, the answer is incorrect."
+            "- If no key points are covered, the answer is incorrect."
         )
     else: # all key points are needed
         assessment_criteria = (
-            f"If all key points are covered in {all_answers} across attempts, the answer is right answer. "
+            "\n## ASSESSMENT CRITERIA\n",
+            f"- If all key points are covered in answers (in current and previous attempts) across attempts, the answer is right answer.\n"
             # f"If any partial answers are covered in the student's {all_answers}, the answer is partially correct.",
             # f"If incorrect answers are covered in the student's {all_answers}, the answer is incorrect."
-            "If some key points are covered, the answer is partially correct."
-            "If no key points are covered, the answer is incorrect."
+            "- If some key points are covered, the answer is partially correct.\n"
+            "- If no key points are covered, the answer is incorrect."
         )
 
     # Dynamically generate the lesson link
@@ -325,6 +328,7 @@ def generate_feedback(question_data, user_answer, attempt_number):
     # Retrieve lesson context
     context_text = retrieve_context(question_data["question"])
 
+    # ///CAMILLE CHECK HERE
     system_prompt = f"""
     Your primary task is to evaluate the student's understanding based on **ALL their cumulative answers provided so far** ({all_answers}).
     Always consider all previous responses cumulatively when determining if they have covered enough key points across attempts.
@@ -342,8 +346,8 @@ def generate_feedback(question_data, user_answer, attempt_number):
 
     ### Tasks:
     1. **Critical Analysis and Feedback:**
-        - WHEN EVALUATING THE FEEDBACK, ALWAYS LOOK AT THE CUMULATIVE ANSWERS ({all_answers}) IN ATTEMPTS 1, 2, AND 3.
-        - Evaluate the **cumulative answers** ({all_answers}) to determine if the student has met the evaluation criteria in attempts 1, 2, and 3.
+        - WHEN EVALUATING THE FEEDBACK, ALWAYS LOOK AT THE STUDENT'S CUMULATIVE ANSWERS IN ATTEMPTS 1, 2, AND 3.
+        - Evaluate the **student's cumulative answers** to determine if the student has met the evaluation criteria.
         - Always analyze progress cumulatively by identifying all key points covered so far.
         - Never assess only the current response in isolation—always include prior answers in your evaluation.
         - Base your assessment strictly on the concepts covered in lesson context of Module 6F, Lesson 06.
@@ -351,32 +355,30 @@ def generate_feedback(question_data, user_answer, attempt_number):
         - Use simple, supportive language to maintain an educational tone.
         - Always reassess the student's progress cumulatively after each input and update the progress statement based on all key points covered so far.
         - If the cumulative answers already meet the criteria for the required number of key points, do not restate partial progress.
-        - If a student has cumulatively covered all key points required, clearly state, "You've now covered X out of Y key points" without ambiguity.
+        - If a student has cumulatively covered all key points required, clearly state, "You've now covered X out of X key points" without ambiguity.
         - IF THE ATTEMPT IS LESS THAN 3, DO NOT GIVE THE ANSWER AWAY IF THE ANSWER IS PARTIALLY CORRECT OR INCORRECT - JUST PROVIDE FEEDBACK.
-        - WHEN EVALUATING THE FEEDBACK, ALWAYS LOOK AT THE CUMULATIVE ANSWERS ({all_answers}) IN ATTEMPTS 1, 2, AND 3.
 
     2. **Handling User's Responses:**
-        - Always critique responses in attempts 1, 2, and 3 using the **cumulative answers** ({all_answers}) from all attempts so far.
-        - If the student has mentioned a key point in any of their prior responses, acknowledge it as part of their cumulative progress and add one if another key point has mentioned in the following attempts.
+        - Always critique responses using the **student's cumulative answers** from all attempts so far.
+        - If the student has mentioned a key point in any of their prior attempt, acknowledge it as part of their cumulative progress and add one if another key point has mentioned in the following attempts.
         - Provide feedback that reflects their progress across all attempts, not just the current attempt.
         - IF THE ATTEMPT IS LESS THAN 3, DO NOT GIVE THE ANSWER AWAY IF THE ANSWER IS PARTIALLY CORRECT OR INCORRECT - JUST PROVIDE FEEDBACK.
-        - WHEN EVALUATING THE FEEDBACK, ALWAYS LOOK AT THE CUMULATIVE ANSWERS ({all_answers}) IN ATTEMPTS 1, 2, AND 3.
 
     ### Response Guidelines:
-    1. WHEN EVALUATING THE FEEDBACK, ALWAYS LOOK AT THE CUMULATIVE ANSWERS ({all_answers}) IN ATTEMPTS 1, 2, AND 3.
+    1. WHEN EVALUATING THE FEEDBACK, ALWAYS LOOK AT THE CUMULATIVE STUDENT'S ANSWERS FROM ALL PREVIOUS AND CURRENT ATTEMPTS.
 
-    2. Always evaluate **cumulative answers** ({all_answers}) and strictly adhere to the following criteria:
+    2. Always evaluate **student's cumulative answers** and strictly adhere to the following criteria:
         {assessment_criteria}
 
     3. If the answer meets the criteria for a correct response:
-        - WHEN EVALUATING THE STUDENT'S ANSWER, ALWAYS LOOK AT THE CUMULATIVE ANSWERS ({all_answers}) FROM ALL ATTEMPTS SO FAR TO CHECK IF ALL THE CRITERIA HAS MET FOR A CORRECT RESPONSE.
+        - WHEN EVALUATING THE CURRENT ATTEMPT, ALWAYS LOOK AT THE STUDENT'S CUMULATIVE ANSWERS FROM ALL ATTEMPTS SO FAR TO CHECK IF ALL THE CRITERIA HAS MET FOR A CORRECT RESPONSE.
         - Alway start your feedback by stating, "This is the right answer."
-        - Mention any additional key points not included in the student's acumulated answers ({all_answers}) to enhance the student's understanding.
+        - Mention any additional key points not included in the student's acumulated answers to enhance the student's understanding.
         - Provide the link to the lesson ({lesson_link}) to deepen the student's understanding.
 
    4. If the answer is partially correct:
         - Provide subtle hints that encourage further reflection
-        - Ensure the evaluation references all previous responses ({all_answers}) from attempts 1, 2, and 3.
+        - Ensure the evaluation references all previous responses from all attempts made.
         - Under no circumstances should the chatbot's feedback reveal information that could lead the student directly or indirectly to the correct answer, even if the intent is to provide guidance. The feedback must remain purely open-ended and exploratory.
         - Avoid any details or suggestions that could guide the student towards the correct answer
         - Avoid any feedback that could inadvertently provide hints or clues
@@ -390,13 +392,13 @@ def generate_feedback(question_data, user_answer, attempt_number):
         - Never give away hints/clues that are close to the correct answer
         - DO NOT USE THE CORRECT ANSWERS AS HINTS
 
-    5. If the answer is incorrect:
+    5. If the answer is entirely incorrect:
         - State "Your answer is incorrect."
         - Provide thought-provoking questions that help the student reconsider their approach
         - Use open-ended prompts that encourage critical thinking
         - Provide subtle guidance, nudges, or prompts to encourage the student to think deeper without revealing the answer.
-        - Ensure the evaluation references all previous responses ({all_answers}).
-        - Under no circumstances should the chatbot's feedback reveal information that could lead the student directly or indirectly to the correct answer, even if the intent is to provide guidance. The feedback must remain purely open-ended and exploratory.
+        - Ensure the evaluation references all the student's previous attempts.
+        - Under no circumstances should your feedback reveal information that could lead the student directly or indirectly to the correct answer, even if the intent is to provide guidance. The feedback must remain purely open-ended and exploratory.
         - Avoid any details or suggestions that could guide the student towards the correct answer
         - Avoid any feedback that could inadvertently provide hints or clues
         
@@ -412,49 +414,36 @@ def generate_feedback(question_data, user_answer, attempt_number):
     6. After 3 unsuccessful attempts:
         - REVEAL the correct answer and suggest reviewing the topic in more detail. ALWAYS provide the hyperlink ({lesson_link}) to the lesson.
         - Enumerate all the correct answers and provide a link to the lesson.
-        - Ensure the evaluation references all previous responses ({all_answers}).
+        - Ensure the evaluation references all previous attempts.
 
-    7. AALWAYS provide the lesson link ({lesson_link}) ONLY when the answer is right answer OR after 3 attempts. ALWAYS ENSURE TO PROVIDE THE HYPERLINK TO THE LESSON {lesson_link}.
+    7. ALWAYS provide the lesson hyperlink ({lesson_link}) ONLY when the answer is right answer OR after 3 attempts.
 
     8. If the response is unrelated to the topic:
         - Politely acknowledge it is outside the topic, and redirect to the relevant question.
-        - Example response: "This seems unrelated to our current topic. Let’s get back to [insert specific question/topic here]."
+        - Example response: "This seems unrelated to our current topic. Let's get back to [insert specific question/topic here]."
 
     9. IF THE ATTEMPT IS LESS THAN 3, DO NOT GIVE THE ANSWER AWAY IF THE ANSWER IS PARTIALLY CORRECT OR INCORRECT - JUST PROVIDE FEEDBACK.
 
-    10.  WHEN EVALUATING THE FEEDBACK, ALWAYS LOOK AT THE CUMULATIVE ANSWERS ({all_answers}) FROM ALL ATTEMPTS SO FAR.
-
-    11. For attempt 1:
-        - check the student's response ({all_answers}) against the cumulative answers
-        
-        For Attempt 2:
-        - check the student's response ({all_answers}) against the cumulative answers
-        
-        For Attempt 3:
-        - check the student's response ({all_answers}) against the cumulative answers
+    10.  WHEN EVALUATING THE FEEDBACK, ALWAYS LOOK AT THE CUMULATIVE ANSWERS FROM ALL ATTEMPTS SO FAR.
 
     ### Additional Notes:
-    - Never assess the student's current response in isolation—always cross-check with the cumulative answers ({all_answers}).
+    - Never assess the student's current response in isolation—always cross-check with all attempts so far (Student's Cummulative Answers).
     - Respond in first person and maintain a supportive, educational tone.
     - Avoid explicitly mentioning the source of information; treat the lesson context as the inherent source of truth.
     - When the name "Muhammad" appears, always add "(saww)" immediately after it.
     - IF THE ATTEMPT IS LESS THAN 3, DO NOT GIVE THE ANSWER AWAY IF THE ANSWER IS PARTIALLY CORRECT OR INCORRECT - JUST PROVIDE FEEDBACK.
-    - WHEN EVALUATING THE FEEDBACK, ALWAYS LOOK AT THE CUMULATIVE ANSWERS ({all_answers}) FROM ALL ATTEMPTS SO FAR.
+    - WHEN EVALUATING THE FEEDBACK, ALWAYS LOOK AT THE CUMULATIVE ANSWERS FROM ALL ATTEMPTS SO FAR.
     - Under no circumstances should the chatbot's feedback reveal information that could lead the student directly or indirectly to the correct answer, even if the intent is to provide guidance. The feedback must remain purely open-ended and exploratory.
-
-    ### Lesson Link:
-    {lesson_link} (please always make this in hyperlink format so that the user can click on this link to go to the lesson)
-
-    ### Cumulative Answers ({all_answers}):
-    {all_answers}
-
-    ### Current Attempt Number:
-    Attempt {attempt_number}
+    
+    ## ⚠️ CRITICAL ANSWER EVALUATION PROCESS ⚠️ 
+    - Review the Assessment Criteria
+    - Review the Question
+    - Compare the Student's Cummulative Answers from Previous Attempts and ask yourself, does the cummulative responses satisfy the requirements of the question asked based on the Assessment Criteria. 
+    - Generate Response
     """
 
-    print("DEBUG: Cumulative Answers:", all_answers)
-
-
+    print("DEBUG: Cumulative Answers:\n ", all_answers)
+    print("DEBUG: Cumulative Answers:\n ", lesson_link)
 
     # Generate feedback using GPT-4o
     response = openai.chat.completions.create(
@@ -466,6 +455,7 @@ def generate_feedback(question_data, user_answer, attempt_number):
     )
 
     feedback = response.choices[0].message.content
+    print(feedback)
     #st.markdown(feedback, unsafe_allow_html=True)
     return feedback
 
@@ -990,7 +980,8 @@ def display_quiz():
                     simulate_typing_with_moving_lips(feedback)
 
                 # Process attempts and correct answers
-                if "right answer" in feedback:
+                # ///CAMILLE CHECK HERE
+                if "right answer" in feedback or "the correct answer" in feedback:
                     st.session_state["show_proceed_button"] = True
                     st.session_state["progress"]["correct_answers"] += 1
                     st.session_state["question_completed"][current_index] = True  # Mark question as completed
@@ -1014,7 +1005,12 @@ def display_quiz():
             st.session_state["feedback_rendered"][current_index] = True
 
     # Display success message
-    if st.session_state["attempts"] == 1 and st.session_state.get("feedback") and "right answer" in st.session_state["feedback"]:
+    # ///CAMILLE CHECK HERE
+    if (
+    st.session_state["attempts"] == 1 
+    and st.session_state.get("feedback") 
+    and ("right answer" in st.session_state["feedback"] or "the correct answer" in st.session_state["feedback"])
+    ):
         st.success("Great job! You got it right on the first try! 🌟")
 
 
