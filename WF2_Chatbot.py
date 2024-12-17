@@ -233,7 +233,6 @@ questions = [
             "Confuses geographical proximity with horizon unity",
             "Suggests additional requirements beyond shared horizon"
         ],
-       "note": "Any 2 of the correct answers is considered right answer",
        "learn_more": "https://tarbiyah.education/topic/module-6f-06-intro/?tb_action=complete&prev_step_id=40639"
    },
 ]
@@ -305,8 +304,7 @@ def generate_feedback(question_data, user_answer, attempt_number):
     elif "note" in question_data and "Any 1 of the key points is considered right answer" in question_data["note"]:
         assessment_criteria = (
             "\n## ASSESSMENT CRITERIA\n",
-            f"- If any key point is covered in the student's answers (in current and previous attempts) accross attempts, the answer is right answer."
-            "- If some key points are covered, the answer is partially correct.\n"
+            f"- If any key point is covered in the student's answers (in current and previous attempts) accross attempts, the answer is right answer.\n"
             # f"If any partial answers are covered in the student's {all_answers}, the answer is partially correct.",
             # f"If incorrect answers are covered in the student's {all_answers}, the answer is incorrect."
             "- If no key points are covered, the answer is incorrect."
@@ -372,11 +370,12 @@ def generate_feedback(question_data, user_answer, attempt_number):
 
     3. If the answer meets the criteria for a correct response:
         - WHEN EVALUATING THE CURRENT ATTEMPT, ALWAYS LOOK AT THE STUDENT'S CUMULATIVE ANSWERS FROM ALL ATTEMPTS SO FAR TO CHECK IF ALL THE CRITERIA HAS MET FOR A CORRECT RESPONSE.
-        - Alway start your feedback by stating, "This is the right answer."
-        - Mention any additional key points not included in the student's acumulated answers to enhance the student's understanding.
-        - Provide the link to the lesson ({lesson_link}) to deepen the student's understanding.
+        - ALWAYS start your feedback by stating, "This is the right answer." OR  "This is the correct answer."
+        - ALWAYS reveal the remaining key points that are not included in the student's acumulated answers to enhance the student's understanding.
+        - ALWAYS provide the link to the lesson ({lesson_link}) to deepen the student's understanding.
+        - Don't forget to ENUMERATE ALL correct key points.
 
-   4. If the answer is partially correct:
+   4. If the answer is partially correct (attempt < 3):
         - Provide subtle hints that encourage further reflection
         - Ensure the evaluation references all previous responses from all attempts made.
         - Under no circumstances should the chatbot's feedback reveal information that could lead the student directly or indirectly to the correct answer, even if the intent is to provide guidance. The feedback must remain purely open-ended and exploratory.
@@ -392,7 +391,7 @@ def generate_feedback(question_data, user_answer, attempt_number):
         - Never give away hints/clues that are close to the correct answer
         - DO NOT USE THE CORRECT ANSWERS AS HINTS
 
-    5. If the answer is entirely incorrect:
+    5. If the answer is entirely incorrect (attempt < 3):
         - State "Your answer is incorrect."
         - Provide thought-provoking questions that help the student reconsider their approach
         - Use open-ended prompts that encourage critical thinking
@@ -411,10 +410,11 @@ def generate_feedback(question_data, user_answer, attempt_number):
         - Never give away hints/clues that are close to the correct answer
         - DO NOT USE THE CORRECT ANSWERS AS HINTS
 
-    6. After 3 unsuccessful attempts:
-        - REVEAL the correct answer and suggest reviewing the topic in more detail. ALWAYS provide the hyperlink ({lesson_link}) to the lesson.
-        - Enumerate all the correct answers and provide a link to the lesson.
-        - Ensure the evaluation references all previous attempts.
+    6. After 3 unsuccessful attempts, incorrect OR partially correct (attempt =3):
+        - ALWAYS REVEAL the correct answer and suggest reviewing the topic in more detail. ALWAYS provide the hyperlink ({lesson_link}) to the lesson.
+        - ALWAYS mention any additional key points not included in the student's acumulated answers to enhance the student's understanding.
+        - ALWAYS enumerate all the correct answers and provide a link to the lesson.
+        - ALWAYS ensure the evaluation references all previous attempts.
 
     7. ALWAYS provide the lesson hyperlink ({lesson_link}) ONLY when the answer is right answer OR after 3 attempts.
 
@@ -433,7 +433,8 @@ def generate_feedback(question_data, user_answer, attempt_number):
     - When the name "Muhammad" appears, always add "(saww)" immediately after it.
     - IF THE ATTEMPT IS LESS THAN 3, DO NOT GIVE THE ANSWER AWAY IF THE ANSWER IS PARTIALLY CORRECT OR INCORRECT - JUST PROVIDE FEEDBACK.
     - WHEN EVALUATING THE FEEDBACK, ALWAYS LOOK AT THE CUMULATIVE ANSWERS FROM ALL ATTEMPTS SO FAR.
-    - Under no circumstances should the chatbot's feedback reveal information that could lead the student directly or indirectly to the correct answer, even if the intent is to provide guidance. The feedback must remain purely open-ended and exploratory.
+    - If the attempt is less than 3, under no circumstances should the chatbot's feedback reveal information that could lead the student directly or indirectly to the correct answer, even if the intent is to provide guidance. The feedback must remain purely open-ended and exploratory.
+    - AT THE END OF 3RD ATTEMPT, ALWAYS GIVE THE CORRECT ANSWERS AND PROVIDE A LINK TO THE LESSON. TAKE NOTE OF THE STUDENT'S MISSED KEY POINTS.
     
     ## ⚠️ CRITICAL ANSWER EVALUATION PROCESS ⚠️ 
     - Review the Assessment Criteria
@@ -981,7 +982,7 @@ def display_quiz():
 
                 # Process attempts and correct answers
                 # ///CAMILLE CHECK HERE
-                if "right answer" in feedback or "the correct answer" in feedback:
+                if "This is the right answer" in feedback or "This is the correct answer" in feedback:
                     st.session_state["show_proceed_button"] = True
                     st.session_state["progress"]["correct_answers"] += 1
                     st.session_state["question_completed"][current_index] = True  # Mark question as completed
@@ -1009,7 +1010,7 @@ def display_quiz():
     if (
     st.session_state["attempts"] == 1 
     and st.session_state.get("feedback") 
-    and ("right answer" in st.session_state["feedback"] or "the correct answer" in st.session_state["feedback"])
+    and ("This is the right answer" in st.session_state["feedback"] or "This is the correct answer" in st.session_state["feedback"])
     ):
         st.success("Great job! You got it right on the first try! 🌟")
 
