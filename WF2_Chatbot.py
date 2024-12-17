@@ -850,6 +850,12 @@ def display_chat_history(chat_history):
                 unsafe_allow_html=True
             )
 
+# Sanitize user input to remove problematic HTML tags like </div>
+def clean_user_input(user_input):
+    if user_input:  # Check if input is not None
+        return user_input.replace("</div>", "").strip()
+    return ""
+
 
 # Main function to display the quiz
 def display_quiz():
@@ -909,6 +915,7 @@ def display_quiz():
         if st.session_state["attempts"] < 3 and not st.session_state["question_completed"].get(current_index, False):
             # Display chat input if answer is not right answer and attempts are below 3
             if user_input := st.chat_input("Type your answer here"):
+                sanitized_input = clean_user_input(user_input)
                 # Increment session state attempts immediately
                 st.session_state["attempts"] += 1
                 st.session_state["attempts_per_question"][current_index] = st.session_state["attempts"]
@@ -916,14 +923,14 @@ def display_quiz():
                 # Append user input to chat history for the current question with attempt count
                 st.session_state["chat_histories"][current_index].append({
                     "role": "user", 
-                    "content": user_input,
+                    "content": sanitized_input,
                     "attempt_count": st.session_state["attempts"]
                 })
 
                 # Display the new user input directly without re-rendering the full history
                 display_chat_history([{
                     "role": "user",
-                    "content": user_input,
+                    "content": sanitized_input,
                     "attempt_count": st.session_state["attempts"]
                 }])
 
@@ -933,7 +940,7 @@ def display_quiz():
                 # Display a spinner while processing the answer
                 with st.spinner('💭 Checking your answer...'):
                     time.sleep(0.5)  # Simulate delay for demonstration
-                    feedback = generate_feedback(current_question, user_input, st.session_state["attempts"])
+                    feedback = generate_feedback(current_question, sanitized_input, st.session_state["attempts"])
 
                 # Append feedback to chat history
                 st.session_state["chat_histories"][current_index].append({"role": "assistant", "content": feedback})
